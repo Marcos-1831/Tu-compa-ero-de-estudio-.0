@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu compañero de estudio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#FAF8F1; --grid-line:#E1E6EE; --ink:#1B2A41; --ink-soft:#5C6B82; --ink-faint:#93A0B3; --user-accent:#2C4A7C; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#DDE2EC;font-family:'Space Grotesk',sans-serif;color:var(--ink);}
+  body{min-height:100vh;display:flex;justify-content:center;padding:28px 14px;}
+  .app{width:100%;max-width:900px;}
+
+  .masthead{text-align:center;margin-bottom:14px;}
+  .masthead h1{font-family:'Caveat',cursive;font-weight:700;font-size:38px;margin:0;color:var(--ink);}
+  .masthead p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-faint);margin:2px 0 0;letter-spacing:.04em;}
+
+  .mainnav{display:flex;justify-content:center;gap:8px;margin-bottom:16px;}
+  .navbtn{border:1.5px solid #C9CFDC;background:#fff;border-radius:999px;padding:7px 16px;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:13px;cursor:pointer;color:var(--ink-soft);}
+  .navbtn.active{background:var(--user-accent);border-color:var(--user-accent);color:#fff;}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;justify-content:center;}
+  .tab{border:1.5px solid transparent;border-radius:999px;padding:7px 14px;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:12.5px;cursor:pointer;color:#fff;opacity:.55;transition:opacity .15s,transform .15s;}
+  .tab:hover{opacity:.85;}
+  .tab.active{opacity:1;box-shadow:0 2px 6px rgba(0,0,0,0.18);transform:translateY(-1px);}
+
+  .card{background:var(--paper);border-radius:10px;box-shadow:0 8px 0 rgba(27,42,65,0.05),0 2px 12px rgba(27,42,65,0.14);padding:30px 34px;background-image:repeating-linear-gradient(var(--paper) 0 27px, var(--grid-line) 27px 28px);background-position:0 100px;}
+
+  .subj-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .badge{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Caveat',cursive;font-weight:700;font-size:20px;color:#fff;flex-shrink:0;}
+  .subj-title{font-family:'Caveat',cursive;font-weight:700;font-size:32px;margin:0;line-height:1;}
+
+  .stepper{display:flex;gap:4px;margin-bottom:24px;overflow-x:auto;padding-bottom:2px;}
+  .step-pill{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--ink-faint);padding:6px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+  .step-pill.done{color:var(--ink-soft);}
+  .step-pill.now{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .step-arrow{color:var(--ink-faint);font-size:11px;align-self:center;}
+
+  textarea,input[type=text]{width:100%;padding:14px;border:1.5px solid #D7DCE6;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:14.5px;line-height:1.6;background:#fff;color:var(--ink);}
+  textarea{min-height:140px;resize:vertical;}
+  textarea:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--accent,var(--user-accent));}
+  select{padding:11px 14px;border:1.5px solid #D7DCE6;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:13.5px;background:#fff;color:var(--ink);}
+  .upload-row{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .upload-row label{font-size:12.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;}
+  .img-preview{max-width:140px;max-height:90px;border-radius:6px;border:1px solid #D7DCE6;display:block;margin-top:8px;}
+
+  .btn{padding:11px 18px;border-radius:8px;border:none;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:14px;cursor:pointer;color:#fff;transition:opacity .15s;}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn.ghost{background:transparent;border:1.5px solid var(--ink-faint);color:var(--ink-soft);}
+  .actions-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+
+  .status{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-faint);margin:10px 0 0;min-height:16px;}
+  .status.err{color:#A32D2D;}
+
+  .box{background:#fff;border:1px solid #E7E2D2;border-left:4px solid var(--accent,var(--user-accent));border-radius:2px 8px 8px 2px;padding:16px 20px;font-size:14.5px;line-height:1.75;margin-top:10px;}
+  .box h4{margin:0 0 8px;font-family:'Caveat',cursive;font-weight:700;font-size:19px;color:var(--accent,var(--user-accent));}
+  .box ul{margin:8px 0 0;padding-left:18px;}
+  .box li{margin-bottom:5px;}
+
+  .q-block{background:#fff;border:1px solid #E7E2D2;border-radius:8px;padding:16px 18px;margin-top:14px;}
+  .q-block .qtext{font-weight:500;margin:0 0 10px;font-size:14.5px;}
+  .opt{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13.5px;margin-bottom:2px;}
+  .opt:hover{background:#F3F1E8;}
+  .opt input{margin-top:3px;}
+  .opt.correct{background:#E8F3E4;}
+  .opt.incorrect{background:#FBE7E5;}
+
+  .score-hero{text-align:center;padding:20px 0 8px;}
+  .score-num{font-family:'Caveat',cursive;font-weight:700;font-size:56px;line-height:1;color:var(--accent,var(--user-accent));}
+  .score-lbl{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-faint);margin-top:2px;}
+
+  .history{margin-top:30px;}
+  .history h3{font-family:'Caveat',cursive;font-size:20px;margin:0 0 10px;color:var(--ink-soft);font-weight:700;}
+  .hist-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border:1px solid #E7E2D2;background:#fff;border-radius:6px;margin-bottom:7px;font-size:13px;cursor:pointer;}
+  .hist-item .t{font-weight:500;}
+  .hist-item .d{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-faint);}
+  .hist-item .sc{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;flex-shrink:0;}
+  .hist-empty{font-size:13px;color:var(--ink-faint);font-style:italic;}
+  .privacy-note{text-align:center;font-size:11px;color:var(--ink-faint);margin-top:14px;font-family:'JetBrains Mono',monospace;}
+
+  .swatches{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px;}
+  .swatch{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .swatch.sel{border-color:var(--ink);}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;margin-bottom:6px;}
+
+  @media(max-width:640px){ .card{padding:22px 18px;} .masthead h1{font-size:30px;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="masthead">
+    <h1>Tu compañero de estudio</h1>
+    <p id="mastSub">apuntes → análisis → resumen → preguntas → examen → calificación</p>
+  </div>
+  <div class="mainnav" id="mainnav"></div>
+  <div id="materiasView">
+    <div class="tabs" id="tabs"></div>
+    <div class="card" id="card"></div>
+  </div>
+  <div id="investigarView" style="display:none"></div>
+  <div id="perfilView" style="display:none"></div>
+  <p class="privacy-note">Tus apuntes, investigaciones y resultados se guardan solo en este dispositivo. Este perfil no es una cuenta segura, es solo personalización.</p>
+</div>
+
+<script>
+const SUBJECTS = [
+  {id:'lenguaje', name:'Lenguaje', short:'Lenguaje', hex:'#7C2C44', letter:'L'},
+  {id:'ciencias_naturales', name:'Ciencias Naturales', short:'C. Naturales', hex:'#2C6E49', letter:'CN'},
+  {id:'ciencias_sociales', name:'C. Sociales', short:'C. Sociales', hex:'#A5691F', letter:'CS'},
+  {id:'ingles', name:'Inglés', short:'Inglés', hex:'#2C4A7C', letter:'I'},
+  {id:'cultura_maya', name:'Cultura Maya', short:'C. Maya', hex:'#B5482D', letter:'CM'},
+  {id:'tecnologia', name:'Tecnología', short:'Tecnología', hex:'#1E7A78', letter:'T'},
+  {id:'matematicas', name:'Matemáticas', short:'Matemáticas', hex:'#3B3F8C', letter:'M'},
+  {id:'artistica', name:'Educ. Artística', short:'Artística', hex:'#A83368', letter:'A'},
+  {id:'emprendimiento', name:'Emprendimiento', short:'Emprend.', hex:'#B08A1E', letter:'E'},
+];
+const STEPS = [
+  {id:'apuntes', label:'Apuntes'}, {id:'analisis', label:'Análisis'}, {id:'resumen', label:'Resumen'},
+  {id:'preguntas', label:'Preguntas'}, {id:'examen', label:'Examen'}, {id:'calificacion', label:'Calificación'},
+];
+const PROFILE_COLORS = ['#2C4A7C','#7C2C44','#2C6E49','#B5482D','#1E7A78','#3B3F8C','#A83368','#B08A1E'];
+
+let currentView = 'materias';
+let currentSubject = SUBJECTS[0].id;
+let session = null;
+let perfil = { nombre:'', color: PROFILE_COLORS[0] };
+
+const tabsEl = document.getElementById('tabs');
+const cardEl = document.getElementById('card');
+const mainnavEl = document.getElementById('mainnav');
+const investigarViewEl = document.getElementById('investigarView');
+const perfilViewEl = document.getElementById('perfilView');
+
+function subj(){ return SUBJECTS.find(s=>s.id===currentSubject); }
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+async function storageGet(key){
+  try{ const r = await window.storage.get(key,false); return r? JSON.parse(r.value): null; }catch(e){ return null; }
+}
+async function storageSet(key, val){
+  try{ await window.storage.set(key, JSON.stringify(val), false); }catch(e){ console.error(e); }
+}
+
+async function callClaude(contentBlocks){
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages: [{ role:"user", content: contentBlocks }] })
+  });
+  if(!response.ok) throw new Error('Error de red');
+  const data = await response.json();
+  const block = data.content.find(b=>b.type==='text');
+  if(!block) throw new Error('Respuesta vacía');
+  return block.text.trim();
+}
+function parseJsonLoose(text){ return JSON.parse(text.replace(/```json/gi,'').replace(/```/g,'').trim()); }
+
+/* ---------- perfil ---------- */
+async function loadPerfil(){
+  const p = await storageGet('perfil');
+  if(p) perfil = p;
+  document.documentElement.style.setProperty('--user-accent', perfil.color);
+  const mastSub = document.getElementById('mastSub');
+  mastSub.textContent = perfil.nombre ? `Hola, ${perfil.nombre} — apuntes → análisis → resumen → preguntas → examen → calificación` : 'apuntes → análisis → resumen → preguntas → examen → calificación';
+}
+async function savePerfil(nombre, color){
+  perfil = { nombre, color };
+  await storageSet('perfil', perfil);
+  document.documentElement.style.setProperty('--user-accent', perfil.color);
+  loadPerfil();
+}
+
+/* ---------- nav ---------- */
+function renderNav(){
+  const items = [ ['materias','Materias'], ['investigar','Investigar'], ['perfil','Perfil'] ];
+  mainnavEl.innerHTML = items.map(([id,label])=>`<button class="navbtn ${currentView===id?'active':''}" data-id="${id}">${label}</button>`).join('');
+  mainnavEl.querySelectorAll('.navbtn').forEach(b=>{
+    b.addEventListener('click', ()=>{ currentView = b.dataset.id; showView(); });
+  });
+}
+function showView(){
+  renderNav();
+  document.getElementById('materiasView').style.display = currentView==='materias' ? '' : 'none';
+  investigarViewEl.style.display = currentView==='investigar' ? '' : 'none';
+  perfilViewEl.style.display = currentView==='perfil' ? '' : 'none';
+  if(currentView==='materias') renderCard();
+  if(currentView==='investigar') renderInvestigar();
+  if(currentView==='perfil') renderPerfil();
+}
+
+/* ---------- perfil view ---------- */
+function renderPerfil(){
+  perfilViewEl.innerHTML = `
+    <div class="card">
+      <div class="subj-head"><p class="subj-title" style="color:var(--user-accent)">Perfil y ajustes</p></div>
+      <div class="field">
+        <label>Tu nombre</label>
+        <input type="text" id="nombreInput" placeholder="¿Cómo te llamas?" value="${escapeHtml(perfil.nombre||'')}" />
+      </div>
+      <div class="field">
+        <label>Color favorito</label>
+        <div class="swatches" id="swatches">
+          ${PROFILE_COLORS.map(c=>`<div class="swatch ${c===perfil.color?'sel':''}" style="background:${c}" data-c="${c}"></div>`).join('')}
+        </div>
+      </div>
+      <div class="actions-row"><button class="btn" id="guardarPerfilBtn" style="background:${perfil.color}">Guardar</button></div>
+      <div class="status" id="perfilStatus"></div>
+    </div>
+  `;
+  let selColor = perfil.color;
+  document.querySelectorAll('#swatches .swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      selColor = sw.dataset.c;
+      document.querySelectorAll('#swatches .swatch').forEach(s2=>s2.classList.remove('sel'));
+      sw.classList.add('sel');
+    });
+  });
+  document.getElementById('guardarPerfilBtn').addEventListener('click', async ()=>{
+    const nombre = document.getElementById('nombreInput').value.trim();
+    await savePerfil(nombre, selColor);
+    document.getElementById('perfilStatus').textContent = 'Guardado.';
+    renderNav();
+  });
+}
+
+/* ---------- investigar view ---------- */
+async function renderInvestigar(){
+  investigarViewEl.innerHTML = `
+    <div class="card">
+      <div class="subj-head"><p class="subj-title" style="color:var(--user-accent)">Investigar</p></div>
+      <div class="field">
+        <label>¿Qué quieres investigar?</label>
+        <input type="text" id="investInput" placeholder="Ej: la revolución guatemalteca de 1944, los números primos, el ciclo del agua..." />
+      </div>
+      <div class="field">
+        <label>Materia relacionada (opcional)</label>
+        <select id="investSubj">
+          <option value="">General</option>
+          ${SUBJECTS.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="actions-row"><button class="btn" id="investBtn" style="background:var(--user-accent)">Investigar</button></div>
+      <div class="status" id="investStatus"></div>
+      <div id="investResult"></div>
+      <div class="history">
+        <h3>Investigaciones anteriores</h3>
+        <div id="investHistList"><div class="hist-empty">Cargando...</div></div>
+      </div>
+    </div>
+  `;
+  document.getElementById('investBtn').addEventListener('click', handleInvestigar);
+  refreshInvestHistory();
+}
+
+async function handleInvestigar(){
+  const btn = document.getElementById('investBtn');
+  const statusEl = document.getElementById('investStatus');
+  const query = document.getElementById('investInput').value.trim();
+  const subjId = document.getElementById('investSubj').value;
+  if(!query){ statusEl.textContent = 'Escribe primero qué quieres investigar.'; statusEl.className='status err'; return; }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Investigando...'; statusEl.className='status';
+
+  const subjName = subjId ? SUBJECTS.find(s=>s.id===subjId).name : null;
+  const instruction = `Eres un asistente de investigación para un estudiante de instituto en Guatemala${subjName? ' que está investigando para la materia de '+subjName : ''}. Investiga y explica con claridad el tema: "${query}". Organiza tu respuesta en una introducción breve y luego 3 a 5 puntos clave. Usa tu conocimiento general; si el tema depende de eventos muy recientes, acláralo. Responde en español, en párrafos claros, sin encabezados markdown.`;
+
+  try{
+    const respuesta = await callClaude([{type:'text', text: instruction}]);
+    document.getElementById('investResult').innerHTML = `
+      <div class="box"><h4>${escapeHtml(query)}</h4><p>${escapeHtml(respuesta).replace(/\n/g,'<br>')}</p></div>
+    `;
+    const entries = await storageGet('investigaciones') || [];
+    entries.unshift({ id:String(Date.now()), query, subjName, respuesta, date:new Date().toISOString() });
+    await storageSet('investigaciones', entries);
+    refreshInvestHistory();
+    statusEl.textContent = 'Listo.';
+  }catch(e){
+    statusEl.textContent = 'No se pudo completar la investigación. Intenta de nuevo.'; statusEl.className='status err';
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+async function refreshInvestHistory(){
+  const listEl = document.getElementById('investHistList');
+  if(!listEl) return;
+  const entries = await storageGet('investigaciones') || [];
+  if(entries.length===0){ listEl.innerHTML = '<div class="hist-empty">Todavía no has investigado ningún tema.</div>'; return; }
+  listEl.innerHTML = entries.map(e=>`
+    <div class="hist-item" data-id="${e.id}">
+      <div><div class="t">${escapeHtml(e.query)}</div><div class="d">${e.subjName?escapeHtml(e.subjName)+' · ':''}${new Date(e.date).toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+    </div>
+  `).join('');
+  listEl.querySelectorAll('.hist-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      const entry = entries.find(e=>e.id===item.dataset.id);
+      if(entry){
+        document.getElementById('investInput').value = entry.query;
+        document.getElementById('investResult').innerHTML = `<div class="box"><h4>${escapeHtml(entry.query)}</h4><p>${escapeHtml(entry.respuesta).replace(/\n/g,'<br>')}</p></div>`;
+      }
+    });
+  });
+}
+
+/* ---------- materias: tabs ---------- */
+function renderTabs(){
+  tabsEl.innerHTML = SUBJECTS.map(s=>`<button class="tab ${s.id===currentSubject?'active':''}" style="background:${s.hex}" data-id="${s.id}">${s.short}</button>`).join('');
+  tabsEl.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ currentSubject = btn.dataset.id; session=null; renderTabs(); renderCard(); });
+  });
+}
+
+async function loadHistory(subjectId){ return (await storageGet(`sessions:${subjectId}`)) || []; }
+async function saveHistory(subjectId, entries){ await storageSet(`sessions:${subjectId}`, entries); }
+async function persistSession(){
+  const entries = await loadHistory(currentSubject);
+  const idx = entries.findIndex(e=>e.id===session.id);
+  if(idx>=0) entries[idx]=session; else entries.unshift(session);
+  await saveHistory(currentSubject, entries);
+}
+function setStatus(msg,isErr){ const el=document.getElementById('statusEl'); if(!el) return; el.textContent=msg||''; el.className='status'+(isErr?' err':''); }
+function stepIndex(id){ return STEPS.findIndex(s=>s.id===id); }
+function renderStepper(activeId){
+  const activeIdx = stepIndex(activeId);
+  return `<div class="stepper">${STEPS.map((s,i)=>`<span class="step-pill ${i<activeIdx?'done':''} ${i===activeIdx?'now':''}">${s.label}</span>${i<STEPS.length-1?'<span class="step-arrow">→</span>':''}`).join('')}</div>`;
+}
+
+function renderCard(){
+  const s = subj();
+  cardEl.style.setProperty('--accent', s.hex);
+  if(!session){
+    cardEl.innerHTML = `
+      <div class="subj-head"><div class="badge" style="background:${s.hex}">${s.letter}</div><p class="subj-title" style="color:${s.hex}">${s.name}</p></div>
+      ${renderStepper('apuntes')}
+      <textarea id="apuntesInput" placeholder="Pega o escribe aquí tus apuntes de ${s.name}..."></textarea>
+      <div class="upload-row"><label>o sube una foto de tus apuntes:</label><input type="file" id="imgInput" accept="image/*" /></div>
+      <img id="imgPreview" class="img-preview" style="display:none" />
+      <div class="actions-row"><button class="btn" id="analizarBtn" style="background:${s.hex}">Analizar apuntes</button></div>
+      <div class="status" id="statusEl"></div>
+      <div class="history"><h3>Sesiones anteriores</h3><div id="histList"><div class="hist-empty">Cargando...</div></div></div>
+    `;
+    document.getElementById('imgInput').addEventListener('change', handleImgSelect);
+    document.getElementById('analizarBtn').addEventListener('click', handleAnalizar);
+    refreshHistory();
+    return;
+  }
+
+  let body = '';
+  if(['resumen','preguntas','examen','calificacion'].includes(session.step)){
+    body += `<div class="box"><h4>Resumen</h4><p>${escapeHtml(session.resumen)}</p>${session.temasClave&&session.temasClave.length?`<ul>${session.temasClave.map(t=>`<li>${escapeHtml(t)}</li>`).join('')}</ul>`:''}</div>`;
+    if(session.investigacion){
+      body += `<div class="box"><h4>Investigación extra</h4><p>${escapeHtml(session.investigacion).replace(/\n/g,'<br>')}</p></div>`;
+    }
+  }
+
+  if(session.step==='resumen'){
+    body += `<div class="actions-row">
+      <button class="btn" id="preguntasBtn" style="background:${s.hex}">Generar preguntas</button>
+      <button class="btn ghost" id="investigarMasBtn">Investigar más sobre este tema</button>
+      <button class="btn ghost" id="nuevaBtn">Nueva sesión</button>
+    </div>`;
+  }
+  if(session.step==='preguntas'){
+    body += `<div class="box"><h4>Preguntas listas</h4><p>Se generaron ${session.questions.length} preguntas sobre este tema.</p><ol>${session.questions.map(q=>`<li>${escapeHtml(q.pregunta)}</li>`).join('')}</ol></div>
+      <div class="actions-row"><button class="btn" id="examenBtn" style="background:${s.hex}">Iniciar examen</button><button class="btn ghost" id="nuevaBtn">Nueva sesión</button></div>`;
+  }
+  if(session.step==='examen'){
+    body += session.questions.map((q,i)=>`
+      <div class="q-block"><p class="qtext">${i+1}. ${escapeHtml(q.pregunta)}</p>
+        ${q.opciones.map((op,oi)=>`<label class="opt"><input type="radio" name="q${i}" value="${oi}" ${session.answers[i]===oi?'checked':''}><span>${escapeHtml(op)}</span></label>`).join('')}
+      </div>`).join('');
+    body += `<div class="actions-row"><button class="btn" id="enviarBtn" style="background:${s.hex}">Enviar examen</button></div>`;
+  }
+  if(session.step==='calificacion'){
+    const pct = Math.round((session.score.correct/session.score.total)*100);
+    body += `<div class="score-hero"><div class="score-num">${session.score.correct}/${session.score.total}</div><div class="score-lbl">${pct}% correcto</div></div>`;
+    body += session.questions.map((q,i)=>{
+      const userAns = session.answers[i]; const ok = userAns===q.respuesta_correcta;
+      return `<div class="q-block"><p class="qtext">${i+1}. ${escapeHtml(q.pregunta)}</p>
+        ${q.opciones.map((op,oi)=>{ let cls='opt'; if(oi===q.respuesta_correcta) cls+=' correct'; else if(oi===userAns&&!ok) cls+=' incorrect'; return `<div class="${cls}"><span>${escapeHtml(op)}</span></div>`; }).join('')}
+        <p style="font-size:12.5px;color:var(--ink-soft);margin:8px 0 0;">${escapeHtml(q.explicacion||'')}</p></div>`;
+    }).join('');
+    body += `<div class="actions-row"><button class="btn" id="nuevaBtn" style="background:${s.hex}">Nueva sesión</button></div>`;
+  }
+
+  cardEl.innerHTML = `
+    <div class="subj-head"><div class="badge" style="background:${s.hex}">${s.letter}</div><p class="subj-title" style="color:${s.hex}">${s.name}</p></div>
+    ${renderStepper(session.step)}
+    ${body}
+    <div class="status" id="statusEl"></div>
+  `;
+
+  const nuevaBtn = document.getElementById('nuevaBtn'); if(nuevaBtn) nuevaBtn.addEventListener('click', ()=>{ session=null; renderCard(); });
+  const preguntasBtn = document.getElementById('preguntasBtn'); if(preguntasBtn) preguntasBtn.addEventListener('click', handleGenerarPreguntas);
+  const investigarMasBtn = document.getElementById('investigarMasBtn'); if(investigarMasBtn) investigarMasBtn.addEventListener('click', handleInvestigarMas);
+  const examenBtn = document.getElementById('examenBtn'); if(examenBtn) examenBtn.addEventListener('click', ()=>{ session.step='examen'; session.answers=session.questions.map(()=>null); renderCard(); attachRadioListeners(); });
+  const enviarBtn = document.getElementById('enviarBtn'); if(enviarBtn) enviarBtn.addEventListener('click', handleEnviarExamen);
+  if(session.step==='examen') attachRadioListeners();
+}
+
+function attachRadioListeners(){
+  session.questions.forEach((q,i)=>{
+    document.querySelectorAll(`input[name="q${i}"]`).forEach(r=>{ r.addEventListener('change', ()=>{ session.answers[i]=parseInt(r.value); }); });
+  });
+}
+
+let pendingImage = null;
+function handleImgSelect(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    pendingImage = { mediaType:file.type, base64:dataUrl.split(',')[1] };
+    const preview = document.getElementById('imgPreview'); preview.src = dataUrl; preview.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function handleAnalizar(){
+  const s = subj();
+  const text = document.getElementById('apuntesInput').value.trim();
+  const btn = document.getElementById('analizarBtn');
+  if(!text && !pendingImage){ setStatus('Pega tus apuntes o sube una foto primero.', true); return; }
+  btn.disabled = true; setStatus('Analizando tus apuntes...');
+
+  const instruction = `Eres un tutor escolar para un estudiante de instituto en Guatemala, materia de ${s.name}. Analiza los apuntes proporcionados${pendingImage?' (vienen como imagen, transcribe primero lo esencial)':''} y responde ÚNICAMENTE con un JSON válido, sin texto adicional ni bloques de código, con esta forma exacta:
+{"resumen": "resumen claro de 4 a 6 líneas", "temas_clave": ["tema1","tema2","tema3"]}`;
+  const contentBlocks = [];
+  if(pendingImage) contentBlocks.push({ type:'image', source:{ type:'base64', media_type:pendingImage.mediaType, data:pendingImage.base64 } });
+  contentBlocks.push({ type:'text', text: instruction + (text?`\n\nApuntes del estudiante:\n${text}`:'') });
+
+  try{
+    const raw = await callClaude(contentBlocks);
+    const parsed = parseJsonLoose(raw);
+    session = { id:String(Date.now()), subject:currentSubject, title: text?text.slice(0,40):'Apuntes (foto)', apuntesText:text, resumen:parsed.resumen, temasClave:parsed.temas_clave||[], investigacion:null, questions:null, answers:null, score:null, step:'resumen', date:new Date().toISOString() };
+    pendingImage = null;
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudo analizar los apuntes. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleInvestigarMas(){
+  const s = subj();
+  const btn = document.getElementById('investigarMasBtn');
+  btn.disabled = true; setStatus('Investigando más sobre el tema...');
+  const instruction = `Eres un asistente de investigación escolar. El estudiante ya tiene este resumen de ${s.name}:\n"${session.resumen}"\nTemas clave: ${(session.temasClave||[]).join(', ')}.\nInvestiga y aporta información complementaria interesante y relevante para profundizar en el tema, en 3-4 párrafos cortos, en español, sin encabezados markdown. Usa tu conocimiento general.`;
+  try{
+    const respuesta = await callClaude([{type:'text', text:instruction}]);
+    session.investigacion = respuesta;
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudo completar la investigación. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleGenerarPreguntas(){
+  const s = subj();
+  const btn = document.getElementById('preguntasBtn');
+  btn.disabled = true; setStatus('Generando preguntas...');
+  const instruction = `Basado en este resumen de ${s.name}, genera un examen corto de 5 preguntas de opción múltiple en español. Responde ÚNICAMENTE con un JSON válido, sin texto adicional, con esta forma exacta:
+{"preguntas":[{"pregunta":"...","opciones":["a","b","c","d"],"respuesta_correcta":0,"explicacion":"..."}]}
+El campo respuesta_correcta es el índice (0 a 3) de la opción correcta dentro de "opciones".
+
+Resumen:
+${session.resumen}
+Temas clave: ${(session.temasClave||[]).join(', ')}`;
+  try{
+    const raw = await callClaude([{type:'text', text:instruction}]);
+    const parsed = parseJsonLoose(raw);
+    session.questions = parsed.preguntas; session.step = 'preguntas';
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudieron generar las preguntas. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleEnviarExamen(){
+  const unanswered = session.answers.some(a=>a===null||a===undefined);
+  if(unanswered){ setStatus('Responde todas las preguntas antes de enviar.', true); return; }
+  let correct = 0;
+  session.questions.forEach((q,i)=>{ if(session.answers[i]===q.respuesta_correcta) correct++; });
+  session.score = { correct, total: session.questions.length };
+  session.step = 'calificacion';
+  await persistSession();
+  renderCard();
+}
+
+async function refreshHistory(){
+  const listEl = document.getElementById('histList'); if(!listEl) return;
+  const entries = await loadHistory(currentSubject);
+  if(entries.length===0){ listEl.innerHTML = '<div class="hist-empty">Todavía no hay sesiones guardadas en esta materia.</div>'; return; }
+  listEl.innerHTML = entries.map(e=>`
+    <div class="hist-item" data-id="${e.id}">
+      <div><div class="t">${escapeHtml(e.title)}</div><div class="d">${new Date(e.date).toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+      <div class="sc">${e.score?e.score.correct+'/'+e.score.total:(e.step==='preguntas'?'sin examen':'en progreso')}</div>
+    </div>`).join('');
+  listEl.querySelectorAll('.hist-item').forEach(item=>{
+    item.addEventListener('click', ()=>{ const entry = entries.find(e=>e.id===item.dataset.id); if(entry){ session=entry; renderCard(); } });
+  });
+}
+
+(async function init(){
+  await loadPerfil();
+  renderNav();
+  renderTabs();
+  showView();
+})();
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu compañero de estudio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#FAF8F1; --grid-line:#E1E6EE; --ink:#1B2A41; --ink-soft:#5C6B82; --ink-faint:#93A0B3; --user-accent:#2C4A7C; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#DDE2EC;font-family:'Space Grotesk',sans-serif;color:var(--ink);}
+  body{min-height:100vh;display:flex;justify-content:center;padding:28px 14px;}
+  .app{width:100%;max-width:900px;}
+
+  .masthead{text-align:center;margin-bottom:14px;}
+  .masthead h1{font-family:'Caveat',cursive;font-weight:700;font-size:38px;margin:0;color:var(--ink);}
+  .masthead p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-faint);margin:2px 0 0;letter-spacing:.04em;}
+
+  .mainnav{display:flex;justify-content:center;gap:8px;margin-bottom:16px;}
+  .navbtn{border:1.5px solid #C9CFDC;background:#fff;border-radius:999px;padding:7px 16px;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:13px;cursor:pointer;color:var(--ink-soft);}
+  .navbtn.active{background:var(--user-accent);border-color:var(--user-accent);color:#fff;}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;justify-content:center;}
+  .tab{border:1.5px solid transparent;border-radius:999px;padding:7px 14px;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:12.5px;cursor:pointer;color:#fff;opacity:.55;transition:opacity .15s,transform .15s;}
+  .tab:hover{opacity:.85;}
+  .tab.active{opacity:1;box-shadow:0 2px 6px rgba(0,0,0,0.18);transform:translateY(-1px);}
+
+  .card{background:var(--paper);border-radius:10px;box-shadow:0 8px 0 rgba(27,42,65,0.05),0 2px 12px rgba(27,42,65,0.14);padding:30px 34px;background-image:repeating-linear-gradient(var(--paper) 0 27px, var(--grid-line) 27px 28px);background-position:0 100px;}
+
+  .subj-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .badge{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Caveat',cursive;font-weight:700;font-size:20px;color:#fff;flex-shrink:0;}
+  .subj-title{font-family:'Caveat',cursive;font-weight:700;font-size:32px;margin:0;line-height:1;}
+
+  .stepper{display:flex;gap:4px;margin-bottom:24px;overflow-x:auto;padding-bottom:2px;}
+  .step-pill{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--ink-faint);padding:6px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+  .step-pill.done{color:var(--ink-soft);}
+  .step-pill.now{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .step-arrow{color:var(--ink-faint);font-size:11px;align-self:center;}
+
+  textarea,input[type=text]{width:100%;padding:14px;border:1.5px solid #D7DCE6;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:14.5px;line-height:1.6;background:#fff;color:var(--ink);}
+  textarea{min-height:140px;resize:vertical;}
+  textarea:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--accent,var(--user-accent));}
+  select{padding:11px 14px;border:1.5px solid #D7DCE6;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:13.5px;background:#fff;color:var(--ink);}
+  .upload-row{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .upload-row label{font-size:12.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;}
+  .img-preview{max-width:140px;max-height:90px;border-radius:6px;border:1px solid #D7DCE6;display:block;margin-top:8px;}
+
+  .btn{padding:11px 18px;border-radius:8px;border:none;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:14px;cursor:pointer;color:#fff;transition:opacity .15s;}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn.ghost{background:transparent;border:1.5px solid var(--ink-faint);color:var(--ink-soft);}
+  .actions-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+
+  .status{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-faint);margin:10px 0 0;min-height:16px;}
+  .status.err{color:#A32D2D;}
+
+  .box{background:#fff;border:1px solid #E7E2D2;border-left:4px solid var(--accent,var(--user-accent));border-radius:2px 8px 8px 2px;padding:16px 20px;font-size:14.5px;line-height:1.75;margin-top:10px;}
+  .box h4{margin:0 0 8px;font-family:'Caveat',cursive;font-weight:700;font-size:19px;color:var(--accent,var(--user-accent));}
+  .box ul{margin:8px 0 0;padding-left:18px;}
+  .box li{margin-bottom:5px;}
+
+  .q-block{background:#fff;border:1px solid #E7E2D2;border-radius:8px;padding:16px 18px;margin-top:14px;}
+  .q-block .qtext{font-weight:500;margin:0 0 10px;font-size:14.5px;}
+  .opt{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13.5px;margin-bottom:2px;}
+  .opt:hover{background:#F3F1E8;}
+  .opt input{margin-top:3px;}
+  .opt.correct{background:#E8F3E4;}
+  .opt.incorrect{background:#FBE7E5;}
+
+  .score-hero{text-align:center;padding:20px 0 8px;}
+  .score-num{font-family:'Caveat',cursive;font-weight:700;font-size:56px;line-height:1;color:var(--accent,var(--user-accent));}
+  .score-lbl{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-faint);margin-top:2px;}
+
+  .history{margin-top:30px;}
+  .history h3{font-family:'Caveat',cursive;font-size:20px;margin:0 0 10px;color:var(--ink-soft);font-weight:700;}
+  .hist-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border:1px solid #E7E2D2;background:#fff;border-radius:6px;margin-bottom:7px;font-size:13px;cursor:pointer;}
+  .hist-item .t{font-weight:500;}
+  .hist-item .d{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-faint);}
+  .hist-item .sc{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;flex-shrink:0;}
+  .hist-empty{font-size:13px;color:var(--ink-faint);font-style:italic;}
+  .privacy-note{text-align:center;font-size:11px;color:var(--ink-faint);margin-top:14px;font-family:'JetBrains Mono',monospace;}
+
+  .swatches{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px;}
+  .swatch{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .swatch.sel{border-color:var(--ink);}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;margin-bottom:6px;}
+
+  @media(max-width:640px){ .card{padding:22px 18px;} .masthead h1{font-size:30px;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="masthead">
+    <h1>Tu compañero de estudio</h1>
+    <p id="mastSub">apuntes → análisis → resumen → preguntas → examen → calificación</p>
+  </div>
+  <div class="mainnav" id="mainnav"></div>
+  <div id="materiasView">
+    <div class="tabs" id="tabs"></div>
+    <div class="card" id="card"></div>
+  </div>
+  <div id="investigarView" style="display:none"></div>
+  <div id="perfilView" style="display:none"></div>
+  <p class="privacy-note">Tus apuntes, investigaciones y resultados se guardan solo en este dispositivo. Este perfil no es una cuenta segura, es solo personalización.</p>
+</div>
+
+<script>
+const SUBJECTS = [
+  {id:'lenguaje', name:'Lenguaje', short:'Lenguaje', hex:'#7C2C44', letter:'L'},
+  {id:'ciencias_naturales', name:'Ciencias Naturales', short:'C. Naturales', hex:'#2C6E49', letter:'CN'},
+  {id:'ciencias_sociales', name:'C. Sociales', short:'C. Sociales', hex:'#A5691F', letter:'CS'},
+  {id:'ingles', name:'Inglés', short:'Inglés', hex:'#2C4A7C', letter:'I'},
+  {id:'cultura_maya', name:'Cultura Maya', short:'C. Maya', hex:'#B5482D', letter:'CM'},
+  {id:'tecnologia', name:'Tecnología', short:'Tecnología', hex:'#1E7A78', letter:'T'},
+  {id:'matematicas', name:'Matemáticas', short:'Matemáticas', hex:'#3B3F8C', letter:'M'},
+  {id:'artistica', name:'Educ. Artística', short:'Artística', hex:'#A83368', letter:'A'},
+  {id:'emprendimiento', name:'Emprendimiento', short:'Emprend.', hex:'#B08A1E', letter:'E'},
+];
+const STEPS = [
+  {id:'apuntes', label:'Apuntes'}, {id:'analisis', label:'Análisis'}, {id:'resumen', label:'Resumen'},
+  {id:'preguntas', label:'Preguntas'}, {id:'examen', label:'Examen'}, {id:'calificacion', label:'Calificación'},
+];
+const PROFILE_COLORS = ['#2C4A7C','#7C2C44','#2C6E49','#B5482D','#1E7A78','#3B3F8C','#A83368','#B08A1E'];
+
+let currentView = 'materias';
+let currentSubject = SUBJECTS[0].id;
+let session = null;
+let perfil = { nombre:'', color: PROFILE_COLORS[0] };
+
+const tabsEl = document.getElementById('tabs');
+const cardEl = document.getElementById('card');
+const mainnavEl = document.getElementById('mainnav');
+const investigarViewEl = document.getElementById('investigarView');
+const perfilViewEl = document.getElementById('perfilView');
+
+function subj(){ return SUBJECTS.find(s=>s.id===currentSubject); }
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+async function storageGet(key){
+  try{ const r = await window.storage.get(key,false); return r? JSON.parse(r.value): null; }catch(e){ return null; }
+}
+async function storageSet(key, val){
+  try{ await window.storage.set(key, JSON.stringify(val), false); }catch(e){ console.error(e); }
+}
+
+async function callClaude(contentBlocks){
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages: [{ role:"user", content: contentBlocks }] })
+  });
+  if(!response.ok) throw new Error('Error de red');
+  const data = await response.json();
+  const block = data.content.find(b=>b.type==='text');
+  if(!block) throw new Error('Respuesta vacía');
+  return block.text.trim();
+}
+function parseJsonLoose(text){ return JSON.parse(text.replace(/```json/gi,'').replace(/```/g,'').trim()); }
+
+/* ---------- perfil ---------- */
+async function loadPerfil(){
+  const p = await storageGet('perfil');
+  if(p) perfil = p;
+  document.documentElement.style.setProperty('--user-accent', perfil.color);
+  const mastSub = document.getElementById('mastSub');
+  mastSub.textContent = perfil.nombre ? `Hola, ${perfil.nombre} — apuntes → análisis → resumen → preguntas → examen → calificación` : 'apuntes → análisis → resumen → preguntas → examen → calificación';
+}
+async function savePerfil(nombre, color){
+  perfil = { nombre, color };
+  await storageSet('perfil', perfil);
+  document.documentElement.style.setProperty('--user-accent', perfil.color);
+  loadPerfil();
+}
+
+/* ---------- nav ---------- */
+function renderNav(){
+  const items = [ ['materias','Materias'], ['investigar','Investigar'], ['perfil','Perfil'] ];
+  mainnavEl.innerHTML = items.map(([id,label])=>`<button class="navbtn ${currentView===id?'active':''}" data-id="${id}">${label}</button>`).join('');
+  mainnavEl.querySelectorAll('.navbtn').forEach(b=>{
+    b.addEventListener('click', ()=>{ currentView = b.dataset.id; showView(); });
+  });
+}
+function showView(){
+  renderNav();
+  document.getElementById('materiasView').style.display = currentView==='materias' ? '' : 'none';
+  investigarViewEl.style.display = currentView==='investigar' ? '' : 'none';
+  perfilViewEl.style.display = currentView==='perfil' ? '' : 'none';
+  if(currentView==='materias') renderCard();
+  if(currentView==='investigar') renderInvestigar();
+  if(currentView==='perfil') renderPerfil();
+}
+
+/* ---------- perfil view ---------- */
+function renderPerfil(){
+  perfilViewEl.innerHTML = `
+    <div class="card">
+      <div class="subj-head"><p class="subj-title" style="color:var(--user-accent)">Perfil y ajustes</p></div>
+      <div class="field">
+        <label>Tu nombre</label>
+        <input type="text" id="nombreInput" placeholder="¿Cómo te llamas?" value="${escapeHtml(perfil.nombre||'')}" />
+      </div>
+      <div class="field">
+        <label>Color favorito</label>
+        <div class="swatches" id="swatches">
+          ${PROFILE_COLORS.map(c=>`<div class="swatch ${c===perfil.color?'sel':''}" style="background:${c}" data-c="${c}"></div>`).join('')}
+        </div>
+      </div>
+      <div class="actions-row"><button class="btn" id="guardarPerfilBtn" style="background:${perfil.color}">Guardar</button></div>
+      <div class="status" id="perfilStatus"></div>
+    </div>
+  `;
+  let selColor = perfil.color;
+  document.querySelectorAll('#swatches .swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      selColor = sw.dataset.c;
+      document.querySelectorAll('#swatches .swatch').forEach(s2=>s2.classList.remove('sel'));
+      sw.classList.add('sel');
+    });
+  });
+  document.getElementById('guardarPerfilBtn').addEventListener('click', async ()=>{
+    const nombre = document.getElementById('nombreInput').value.trim();
+    await savePerfil(nombre, selColor);
+    document.getElementById('perfilStatus').textContent = 'Guardado.';
+    renderNav();
+  });
+}
+
+/* ---------- investigar view ---------- */
+async function renderInvestigar(){
+  investigarViewEl.innerHTML = `
+    <div class="card">
+      <div class="subj-head"><p class="subj-title" style="color:var(--user-accent)">Investigar</p></div>
+      <div class="field">
+        <label>¿Qué quieres investigar?</label>
+        <input type="text" id="investInput" placeholder="Ej: la revolución guatemalteca de 1944, los números primos, el ciclo del agua..." />
+      </div>
+      <div class="field">
+        <label>Materia relacionada (opcional)</label>
+        <select id="investSubj">
+          <option value="">General</option>
+          ${SUBJECTS.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="actions-row"><button class="btn" id="investBtn" style="background:var(--user-accent)">Investigar</button></div>
+      <div class="status" id="investStatus"></div>
+      <div id="investResult"></div>
+      <div class="history">
+        <h3>Investigaciones anteriores</h3>
+        <div id="investHistList"><div class="hist-empty">Cargando...</div></div>
+      </div>
+    </div>
+  `;
+  document.getElementById('investBtn').addEventListener('click', handleInvestigar);
+  refreshInvestHistory();
+}
+
+async function handleInvestigar(){
+  const btn = document.getElementById('investBtn');
+  const statusEl = document.getElementById('investStatus');
+  const query = document.getElementById('investInput').value.trim();
+  const subjId = document.getElementById('investSubj').value;
+  if(!query){ statusEl.textContent = 'Escribe primero qué quieres investigar.'; statusEl.className='status err'; return; }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Investigando...'; statusEl.className='status';
+
+  const subjName = subjId ? SUBJECTS.find(s=>s.id===subjId).name : null;
+  const instruction = `Eres un asistente de investigación para un estudiante de instituto en Guatemala${subjName? ' que está investigando para la materia de '+subjName : ''}. Investiga y explica con claridad el tema: "${query}". Organiza tu respuesta en una introducción breve y luego 3 a 5 puntos clave. Usa tu conocimiento general; si el tema depende de eventos muy recientes, acláralo. Responde en español, en párrafos claros, sin encabezados markdown.`;
+
+  try{
+    const respuesta = await callClaude([{type:'text', text: instruction}]);
+    document.getElementById('investResult').innerHTML = `
+      <div class="box"><h4>${escapeHtml(query)}</h4><p>${escapeHtml(respuesta).replace(/\n/g,'<br>')}</p></div>
+    `;
+    const entries = await storageGet('investigaciones') || [];
+    entries.unshift({ id:String(Date.now()), query, subjName, respuesta, date:new Date().toISOString() });
+    await storageSet('investigaciones', entries);
+    refreshInvestHistory();
+    statusEl.textContent = 'Listo.';
+  }catch(e){
+    statusEl.textContent = 'No se pudo completar la investigación. Intenta de nuevo.'; statusEl.className='status err';
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+async function refreshInvestHistory(){
+  const listEl = document.getElementById('investHistList');
+  if(!listEl) return;
+  const entries = await storageGet('investigaciones') || [];
+  if(entries.length===0){ listEl.innerHTML = '<div class="hist-empty">Todavía no has investigado ningún tema.</div>'; return; }
+  listEl.innerHTML = entries.map(e=>`
+    <div class="hist-item" data-id="${e.id}">
+      <div><div class="t">${escapeHtml(e.query)}</div><div class="d">${e.subjName?escapeHtml(e.subjName)+' · ':''}${new Date(e.date).toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+    </div>
+  `).join('');
+  listEl.querySelectorAll('.hist-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      const entry = entries.find(e=>e.id===item.dataset.id);
+      if(entry){
+        document.getElementById('investInput').value = entry.query;
+        document.getElementById('investResult').innerHTML = `<div class="box"><h4>${escapeHtml(entry.query)}</h4><p>${escapeHtml(entry.respuesta).replace(/\n/g,'<br>')}</p></div>`;
+      }
+    });
+  });
+}
+
+/* ---------- materias: tabs ---------- */
+function renderTabs(){
+  tabsEl.innerHTML = SUBJECTS.map(s=>`<button class="tab ${s.id===currentSubject?'active':''}" style="background:${s.hex}" data-id="${s.id}">${s.short}</button>`).join('');
+  tabsEl.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ currentSubject = btn.dataset.id; session=null; renderTabs(); renderCard(); });
+  });
+}
+
+async function loadHistory(subjectId){ return (await storageGet(`sessions:${subjectId}`)) || []; }
+async function saveHistory(subjectId, entries){ await storageSet(`sessions:${subjectId}`, entries); }
+async function persistSession(){
+  const entries = await loadHistory(currentSubject);
+  const idx = entries.findIndex(e=>e.id===session.id);
+  if(idx>=0) entries[idx]=session; else entries.unshift(session);
+  await saveHistory(currentSubject, entries);
+}
+function setStatus(msg,isErr){ const el=document.getElementById('statusEl'); if(!el) return; el.textContent=msg||''; el.className='status'+(isErr?' err':''); }
+function stepIndex(id){ return STEPS.findIndex(s=>s.id===id); }
+function renderStepper(activeId){
+  const activeIdx = stepIndex(activeId);
+  return `<div class="stepper">${STEPS.map((s,i)=>`<span class="step-pill ${i<activeIdx?'done':''} ${i===activeIdx?'now':''}">${s.label}</span>${i<STEPS.length-1?'<span class="step-arrow">→</span>':''}`).join('')}</div>`;
+}
+
+function renderCard(){
+  const s = subj();
+  cardEl.style.setProperty('--accent', s.hex);
+  if(!session){
+    cardEl.innerHTML = `
+      <div class="subj-head"><div class="badge" style="background:${s.hex}">${s.letter}</div><p class="subj-title" style="color:${s.hex}">${s.name}</p></div>
+      ${renderStepper('apuntes')}
+      <textarea id="apuntesInput" placeholder="Pega o escribe aquí tus apuntes de ${s.name}..."></textarea>
+      <div class="upload-row"><label>o sube una foto de tus apuntes:</label><input type="file" id="imgInput" accept="image/*" /></div>
+      <img id="imgPreview" class="img-preview" style="display:none" />
+      <div class="actions-row"><button class="btn" id="analizarBtn" style="background:${s.hex}">Analizar apuntes</button></div>
+      <div class="status" id="statusEl"></div>
+      <div class="history"><h3>Sesiones anteriores</h3><div id="histList"><div class="hist-empty">Cargando...</div></div></div>
+    `;
+    document.getElementById('imgInput').addEventListener('change', handleImgSelect);
+    document.getElementById('analizarBtn').addEventListener('click', handleAnalizar);
+    refreshHistory();
+    return;
+  }
+
+  let body = '';
+  if(['resumen','preguntas','examen','calificacion'].includes(session.step)){
+    body += `<div class="box"><h4>Resumen</h4><p>${escapeHtml(session.resumen)}</p>${session.temasClave&&session.temasClave.length?`<ul>${session.temasClave.map(t=>`<li>${escapeHtml(t)}</li>`).join('')}</ul>`:''}</div>`;
+    if(session.investigacion){
+      body += `<div class="box"><h4>Investigación extra</h4><p>${escapeHtml(session.investigacion).replace(/\n/g,'<br>')}</p></div>`;
+    }
+  }
+
+  if(session.step==='resumen'){
+    body += `<div class="actions-row">
+      <button class="btn" id="preguntasBtn" style="background:${s.hex}">Generar preguntas</button>
+      <button class="btn ghost" id="investigarMasBtn">Investigar más sobre este tema</button>
+      <button class="btn ghost" id="nuevaBtn">Nueva sesión</button>
+    </div>`;
+  }
+  if(session.step==='preguntas'){
+    body += `<div class="box"><h4>Preguntas listas</h4><p>Se generaron ${session.questions.length} preguntas sobre este tema.</p><ol>${session.questions.map(q=>`<li>${escapeHtml(q.pregunta)}</li>`).join('')}</ol></div>
+      <div class="actions-row"><button class="btn" id="examenBtn" style="background:${s.hex}">Iniciar examen</button><button class="btn ghost" id="nuevaBtn">Nueva sesión</button></div>`;
+  }
+  if(session.step==='examen'){
+    body += session.questions.map((q,i)=>`
+      <div class="q-block"><p class="qtext">${i+1}. ${escapeHtml(q.pregunta)}</p>
+        ${q.opciones.map((op,oi)=>`<label class="opt"><input type="radio" name="q${i}" value="${oi}" ${session.answers[i]===oi?'checked':''}><span>${escapeHtml(op)}</span></label>`).join('')}
+      </div>`).join('');
+    body += `<div class="actions-row"><button class="btn" id="enviarBtn" style="background:${s.hex}">Enviar examen</button></div>`;
+  }
+  if(session.step==='calificacion'){
+    const pct = Math.round((session.score.correct/session.score.total)*100);
+    body += `<div class="score-hero"><div class="score-num">${session.score.correct}/${session.score.total}</div><div class="score-lbl">${pct}% correcto</div></div>`;
+    body += session.questions.map((q,i)=>{
+      const userAns = session.answers[i]; const ok = userAns===q.respuesta_correcta;
+      return `<div class="q-block"><p class="qtext">${i+1}. ${escapeHtml(q.pregunta)}</p>
+        ${q.opciones.map((op,oi)=>{ let cls='opt'; if(oi===q.respuesta_correcta) cls+=' correct'; else if(oi===userAns&&!ok) cls+=' incorrect'; return `<div class="${cls}"><span>${escapeHtml(op)}</span></div>`; }).join('')}
+        <p style="font-size:12.5px;color:var(--ink-soft);margin:8px 0 0;">${escapeHtml(q.explicacion||'')}</p></div>`;
+    }).join('');
+    body += `<div class="actions-row"><button class="btn" id="nuevaBtn" style="background:${s.hex}">Nueva sesión</button></div>`;
+  }
+
+  cardEl.innerHTML = `
+    <div class="subj-head"><div class="badge" style="background:${s.hex}">${s.letter}</div><p class="subj-title" style="color:${s.hex}">${s.name}</p></div>
+    ${renderStepper(session.step)}
+    ${body}
+    <div class="status" id="statusEl"></div>
+  `;
+
+  const nuevaBtn = document.getElementById('nuevaBtn'); if(nuevaBtn) nuevaBtn.addEventListener('click', ()=>{ session=null; renderCard(); });
+  const preguntasBtn = document.getElementById('preguntasBtn'); if(preguntasBtn) preguntasBtn.addEventListener('click', handleGenerarPreguntas);
+  const investigarMasBtn = document.getElementById('investigarMasBtn'); if(investigarMasBtn) investigarMasBtn.addEventListener('click', handleInvestigarMas);
+  const examenBtn = document.getElementById('examenBtn'); if(examenBtn) examenBtn.addEventListener('click', ()=>{ session.step='examen'; session.answers=session.questions.map(()=>null); renderCard(); attachRadioListeners(); });
+  const enviarBtn = document.getElementById('enviarBtn'); if(enviarBtn) enviarBtn.addEventListener('click', handleEnviarExamen);
+  if(session.step==='examen') attachRadioListeners();
+}
+
+function attachRadioListeners(){
+  session.questions.forEach((q,i)=>{
+    document.querySelectorAll(`input[name="q${i}"]`).forEach(r=>{ r.addEventListener('change', ()=>{ session.answers[i]=parseInt(r.value); }); });
+  });
+}
+
+let pendingImage = null;
+function handleImgSelect(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    pendingImage = { mediaType:file.type, base64:dataUrl.split(',')[1] };
+    const preview = document.getElementById('imgPreview'); preview.src = dataUrl; preview.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function handleAnalizar(){
+  const s = subj();
+  const text = document.getElementById('apuntesInput').value.trim();
+  const btn = document.getElementById('analizarBtn');
+  if(!text && !pendingImage){ setStatus('Pega tus apuntes o sube una foto primero.', true); return; }
+  btn.disabled = true; setStatus('Analizando tus apuntes...');
+
+  const instruction = `Eres un tutor escolar para un estudiante de instituto en Guatemala, materia de ${s.name}. Analiza los apuntes proporcionados${pendingImage?' (vienen como imagen, transcribe primero lo esencial)':''} y responde ÚNICAMENTE con un JSON válido, sin texto adicional ni bloques de código, con esta forma exacta:
+{"resumen": "resumen claro de 4 a 6 líneas", "temas_clave": ["tema1","tema2","tema3"]}`;
+  const contentBlocks = [];
+  if(pendingImage) contentBlocks.push({ type:'image', source:{ type:'base64', media_type:pendingImage.mediaType, data:pendingImage.base64 } });
+  contentBlocks.push({ type:'text', text: instruction + (text?`\n\nApuntes del estudiante:\n${text}`:'') });
+
+  try{
+    const raw = await callClaude(contentBlocks);
+    const parsed = parseJsonLoose(raw);
+    session = { id:String(Date.now()), subject:currentSubject, title: text?text.slice(0,40):'Apuntes (foto)', apuntesText:text, resumen:parsed.resumen, temasClave:parsed.temas_clave||[], investigacion:null, questions:null, answers:null, score:null, step:'resumen', date:new Date().toISOString() };
+    pendingImage = null;
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudo analizar los apuntes. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleInvestigarMas(){
+  const s = subj();
+  const btn = document.getElementById('investigarMasBtn');
+  btn.disabled = true; setStatus('Investigando más sobre el tema...');
+  const instruction = `Eres un asistente de investigación escolar. El estudiante ya tiene este resumen de ${s.name}:\n"${session.resumen}"\nTemas clave: ${(session.temasClave||[]).join(', ')}.\nInvestiga y aporta información complementaria interesante y relevante para profundizar en el tema, en 3-4 párrafos cortos, en español, sin encabezados markdown. Usa tu conocimiento general.`;
+  try{
+    const respuesta = await callClaude([{type:'text', text:instruction}]);
+    session.investigacion = respuesta;
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudo completar la investigación. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleGenerarPreguntas(){
+  const s = subj();
+  const btn = document.getElementById('preguntasBtn');
+  btn.disabled = true; setStatus('Generando preguntas...');
+  const instruction = `Basado en este resumen de ${s.name}, genera un examen corto de 5 preguntas de opción múltiple en español. Responde ÚNICAMENTE con un JSON válido, sin texto adicional, con esta forma exacta:
+{"preguntas":[{"pregunta":"...","opciones":["a","b","c","d"],"respuesta_correcta":0,"explicacion":"..."}]}
+El campo respuesta_correcta es el índice (0 a 3) de la opción correcta dentro de "opciones".
+
+Resumen:
+${session.resumen}
+Temas clave: ${(session.temasClave||[]).join(', ')}`;
+  try{
+    const raw = await callClaude([{type:'text', text:instruction}]);
+    const parsed = parseJsonLoose(raw);
+    session.questions = parsed.preguntas; session.step = 'preguntas';
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudieron generar las preguntas. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleEnviarExamen(){
+  const unanswered = session.answers.some(a=>a===null||a===undefined);
+  if(unanswered){ setStatus('Responde todas las preguntas antes de enviar.', true); return; }
+  let correct = 0;
+  session.questions.forEach((q,i)=>{ if(session.answers[i]===q.respuesta_correcta) correct++; });
+  session.score = { correct, total: session.questions.length };
+  session.step = 'calificacion';
+  await persistSession();
+  renderCard();
+}
+
+async function refreshHistory(){
+  const listEl = document.getElementById('histList'); if(!listEl) return;
+  const entries = await loadHistory(currentSubject);
+  if(entries.length===0){ listEl.innerHTML = '<div class="hist-empty">Todavía no hay sesiones guardadas en esta materia.</div>'; return; }
+  listEl.innerHTML = entries.map(e=>`
+    <div class="hist-item" data-id="${e.id}">
+      <div><div class="t">${escapeHtml(e.title)}</div><div class="d">${new Date(e.date).toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+      <div class="sc">${e.score?e.score.correct+'/'+e.score.total:(e.step==='preguntas'?'sin examen':'en progreso')}</div>
+    </div>`).join('');
+  listEl.querySelectorAll('.hist-item').forEach(item=>{
+    item.addEventListener('click', ()=>{ const entry = entries.find(e=>e.id===item.dataset.id); if(entry){ session=entry; renderCard(); } });
+  });
+}
+
+(async function init(){
+  await loadPerfil();
+  renderNav();
+  renderTabs();
+  showView();
+})();
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu compañero de estudio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#FAF8F1; --grid-line:#E1E6EE; --ink:#1B2A41; --ink-soft:#5C6B82; --ink-faint:#93A0B3; --user-accent:#2C4A7C; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#DDE2EC;font-family:'Space Grotesk',sans-serif;color:var(--ink);}
+  body{min-height:100vh;display:flex;justify-content:center;padding:28px 14px;}
+  .app{width:100%;max-width:900px;}
+
+  .masthead{text-align:center;margin-bottom:14px;}
+  .masthead h1{font-family:'Caveat',cursive;font-weight:700;font-size:38px;margin:0;color:var(--ink);}
+  .masthead p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-faint);margin:2px 0 0;letter-spacing:.04em;}
+
+  .mainnav{display:flex;justify-content:center;gap:8px;margin-bottom:16px;}
+  .navbtn{border:1.5px solid #C9CFDC;background:#fff;border-radius:999px;padding:7px 16px;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:13px;cursor:pointer;color:var(--ink-soft);}
+  .navbtn.active{background:var(--user-accent);border-color:var(--user-accent);color:#fff;}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;justify-content:center;}
+  .tab{border:1.5px solid transparent;border-radius:999px;padding:7px 14px;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:12.5px;cursor:pointer;color:#fff;opacity:.55;transition:opacity .15s,transform .15s;}
+  .tab:hover{opacity:.85;}
+  .tab.active{opacity:1;box-shadow:0 2px 6px rgba(0,0,0,0.18);transform:translateY(-1px);}
+
+  .card{background:var(--paper);border-radius:10px;box-shadow:0 8px 0 rgba(27,42,65,0.05),0 2px 12px rgba(27,42,65,0.14);padding:30px 34px;background-image:repeating-linear-gradient(var(--paper) 0 27px, var(--grid-line) 27px 28px);background-position:0 100px;}
+
+  .subj-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .badge{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Caveat',cursive;font-weight:700;font-size:20px;color:#fff;flex-shrink:0;}
+  .subj-title{font-family:'Caveat',cursive;font-weight:700;font-size:32px;margin:0;line-height:1;}
+
+  .stepper{display:flex;gap:4px;margin-bottom:24px;overflow-x:auto;padding-bottom:2px;}
+  .step-pill{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--ink-faint);padding:6px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+  .step-pill.done{color:var(--ink-soft);}
+  .step-pill.now{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .step-arrow{color:var(--ink-faint);font-size:11px;align-self:center;}
+
+  textarea,input[type=text]{width:100%;padding:14px;border:1.5px solid #D7DCE6;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:14.5px;line-height:1.6;background:#fff;color:var(--ink);}
+  textarea{min-height:140px;resize:vertical;}
+  textarea:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--accent,var(--user-accent));}
+  select{padding:11px 14px;border:1.5px solid #D7DCE6;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:13.5px;background:#fff;color:var(--ink);}
+  .upload-row{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .upload-row label{font-size:12.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;}
+  .img-preview{max-width:140px;max-height:90px;border-radius:6px;border:1px solid #D7DCE6;display:block;margin-top:8px;}
+
+  .btn{padding:11px 18px;border-radius:8px;border:none;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:14px;cursor:pointer;color:#fff;transition:opacity .15s;}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn.ghost{background:transparent;border:1.5px solid var(--ink-faint);color:var(--ink-soft);}
+  .actions-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+
+  .status{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-faint);margin:10px 0 0;min-height:16px;}
+  .status.err{color:#A32D2D;}
+
+  .box{background:#fff;border:1px solid #E7E2D2;border-left:4px solid var(--accent,var(--user-accent));border-radius:2px 8px 8px 2px;padding:16px 20px;font-size:14.5px;line-height:1.75;margin-top:10px;}
+  .box h4{margin:0 0 8px;font-family:'Caveat',cursive;font-weight:700;font-size:19px;color:var(--accent,var(--user-accent));}
+  .box ul{margin:8px 0 0;padding-left:18px;}
+  .box li{margin-bottom:5px;}
+
+  .q-block{background:#fff;border:1px solid #E7E2D2;border-radius:8px;padding:16px 18px;margin-top:14px;}
+  .q-block .qtext{font-weight:500;margin:0 0 10px;font-size:14.5px;}
+  .opt{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13.5px;margin-bottom:2px;}
+  .opt:hover{background:#F3F1E8;}
+  .opt input{margin-top:3px;}
+  .opt.correct{background:#E8F3E4;}
+  .opt.incorrect{background:#FBE7E5;}
+
+  .score-hero{text-align:center;padding:20px 0 8px;}
+  .score-num{font-family:'Caveat',cursive;font-weight:700;font-size:56px;line-height:1;color:var(--accent,var(--user-accent));}
+  .score-lbl{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-faint);margin-top:2px;}
+
+  .history{margin-top:30px;}
+  .history h3{font-family:'Caveat',cursive;font-size:20px;margin:0 0 10px;color:var(--ink-soft);font-weight:700;}
+  .hist-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border:1px solid #E7E2D2;background:#fff;border-radius:6px;margin-bottom:7px;font-size:13px;cursor:pointer;}
+  .hist-item .t{font-weight:500;}
+  .hist-item .d{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-faint);}
+  .hist-item .sc{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;flex-shrink:0;}
+  .hist-empty{font-size:13px;color:var(--ink-faint);font-style:italic;}
+  .privacy-note{text-align:center;font-size:11px;color:var(--ink-faint);margin-top:14px;font-family:'JetBrains Mono',monospace;}
+
+  .swatches{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px;}
+  .swatch{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .swatch.sel{border-color:var(--ink);}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;margin-bottom:6px;}
+
+  @media(max-width:640px){ .card{padding:22px 18px;} .masthead h1{font-size:30px;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="masthead">
+    <h1>Tu compañero de estudio</h1>
+    <p id="mastSub">apuntes → análisis → resumen → preguntas → examen → calificación</p>
+  </div>
+  <div class="mainnav" id="mainnav"></div>
+  <div id="materiasView">
+    <div class="tabs" id="tabs"></div>
+    <div class="card" id="card"></div>
+  </div>
+  <div id="investigarView" style="display:none"></div>
+  <div id="perfilView" style="display:none"></div>
+  <p class="privacy-note">Tus apuntes, investigaciones y resultados se guardan solo en este dispositivo. Este perfil no es una cuenta segura, es solo personalización.</p>
+</div>
+
+<script>
+const SUBJECTS = [
+  {id:'lenguaje', name:'Lenguaje', short:'Lenguaje', hex:'#7C2C44', letter:'L'},
+  {id:'ciencias_naturales', name:'Ciencias Naturales', short:'C. Naturales', hex:'#2C6E49', letter:'CN'},
+  {id:'ciencias_sociales', name:'C. Sociales', short:'C. Sociales', hex:'#A5691F', letter:'CS'},
+  {id:'ingles', name:'Inglés', short:'Inglés', hex:'#2C4A7C', letter:'I'},
+  {id:'cultura_maya', name:'Cultura Maya', short:'C. Maya', hex:'#B5482D', letter:'CM'},
+  {id:'tecnologia', name:'Tecnología', short:'Tecnología', hex:'#1E7A78', letter:'T'},
+  {id:'matematicas', name:'Matemáticas', short:'Matemáticas', hex:'#3B3F8C', letter:'M'},
+  {id:'artistica', name:'Educ. Artística', short:'Artística', hex:'#A83368', letter:'A'},
+  {id:'emprendimiento', name:'Emprendimiento', short:'Emprend.', hex:'#B08A1E', letter:'E'},
+];
+const STEPS = [
+  {id:'apuntes', label:'Apuntes'}, {id:'analisis', label:'Análisis'}, {id:'resumen', label:'Resumen'},
+  {id:'preguntas', label:'Preguntas'}, {id:'examen', label:'Examen'}, {id:'calificacion', label:'Calificación'},
+];
+const PROFILE_COLORS = ['#2C4A7C','#7C2C44','#2C6E49','#B5482D','#1E7A78','#3B3F8C','#A83368','#B08A1E'];
+
+let currentView = 'materias';
+let currentSubject = SUBJECTS[0].id;
+let session = null;
+let perfil = { nombre:'', color: PROFILE_COLORS[0] };
+
+const tabsEl = document.getElementById('tabs');
+const cardEl = document.getElementById('card');
+const mainnavEl = document.getElementById('mainnav');
+const investigarViewEl = document.getElementById('investigarView');
+const perfilViewEl = document.getElementById('perfilView');
+
+function subj(){ return SUBJECTS.find(s=>s.id===currentSubject); }
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+async function storageGet(key){
+  try{ const r = await window.storage.get(key,false); return r? JSON.parse(r.value): null; }catch(e){ return null; }
+}
+async function storageSet(key, val){
+  try{ await window.storage.set(key, JSON.stringify(val), false); }catch(e){ console.error(e); }
+}
+
+async function callClaude(contentBlocks){
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages: [{ role:"user", content: contentBlocks }] })
+  });
+  if(!response.ok) throw new Error('Error de red');
+  const data = await response.json();
+  const block = data.content.find(b=>b.type==='text');
+  if(!block) throw new Error('Respuesta vacía');
+  return block.text.trim();
+}
+function parseJsonLoose(text){ return JSON.parse(text.replace(/```json/gi,'').replace(/```/g,'').trim()); }
+
+/* ---------- perfil ---------- */
+async function loadPerfil(){
+  const p = await storageGet('perfil');
+  if(p) perfil = p;
+  document.documentElement.style.setProperty('--user-accent', perfil.color);
+  const mastSub = document.getElementById('mastSub');
+  mastSub.textContent = perfil.nombre ? `Hola, ${perfil.nombre} — apuntes → análisis → resumen → preguntas → examen → calificación` : 'apuntes → análisis → resumen → preguntas → examen → calificación';
+}
+async function savePerfil(nombre, color){
+  perfil = { nombre, color };
+  await storageSet('perfil', perfil);
+  document.documentElement.style.setProperty('--user-accent', perfil.color);
+  loadPerfil();
+}
+
+/* ---------- nav ---------- */
+function renderNav(){
+  const items = [ ['materias','Materias'], ['investigar','Investigar'], ['perfil','Perfil'] ];
+  mainnavEl.innerHTML = items.map(([id,label])=>`<button class="navbtn ${currentView===id?'active':''}" data-id="${id}">${label}</button>`).join('');
+  mainnavEl.querySelectorAll('.navbtn').forEach(b=>{
+    b.addEventListener('click', ()=>{ currentView = b.dataset.id; showView(); });
+  });
+}
+function showView(){
+  renderNav();
+  document.getElementById('materiasView').style.display = currentView==='materias' ? '' : 'none';
+  investigarViewEl.style.display = currentView==='investigar' ? '' : 'none';
+  perfilViewEl.style.display = currentView==='perfil' ? '' : 'none';
+  if(currentView==='materias') renderCard();
+  if(currentView==='investigar') renderInvestigar();
+  if(currentView==='perfil') renderPerfil();
+}
+
+/* ---------- perfil view ---------- */
+function renderPerfil(){
+  perfilViewEl.innerHTML = `
+    <div class="card">
+      <div class="subj-head"><p class="subj-title" style="color:var(--user-accent)">Perfil y ajustes</p></div>
+      <div class="field">
+        <label>Tu nombre</label>
+        <input type="text" id="nombreInput" placeholder="¿Cómo te llamas?" value="${escapeHtml(perfil.nombre||'')}" />
+      </div>
+      <div class="field">
+        <label>Color favorito</label>
+        <div class="swatches" id="swatches">
+          ${PROFILE_COLORS.map(c=>`<div class="swatch ${c===perfil.color?'sel':''}" style="background:${c}" data-c="${c}"></div>`).join('')}
+        </div>
+      </div>
+      <div class="actions-row"><button class="btn" id="guardarPerfilBtn" style="background:${perfil.color}">Guardar</button></div>
+      <div class="status" id="perfilStatus"></div>
+    </div>
+  `;
+  let selColor = perfil.color;
+  document.querySelectorAll('#swatches .swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      selColor = sw.dataset.c;
+      document.querySelectorAll('#swatches .swatch').forEach(s2=>s2.classList.remove('sel'));
+      sw.classList.add('sel');
+    });
+  });
+  document.getElementById('guardarPerfilBtn').addEventListener('click', async ()=>{
+    const nombre = document.getElementById('nombreInput').value.trim();
+    await savePerfil(nombre, selColor);
+    document.getElementById('perfilStatus').textContent = 'Guardado.';
+    renderNav();
+  });
+}
+
+/* ---------- investigar view ---------- */
+async function renderInvestigar(){
+  investigarViewEl.innerHTML = `
+    <div class="card">
+      <div class="subj-head"><p class="subj-title" style="color:var(--user-accent)">Investigar</p></div>
+      <div class="field">
+        <label>¿Qué quieres investigar?</label>
+        <input type="text" id="investInput" placeholder="Ej: la revolución guatemalteca de 1944, los números primos, el ciclo del agua..." />
+      </div>
+      <div class="field">
+        <label>Materia relacionada (opcional)</label>
+        <select id="investSubj">
+          <option value="">General</option>
+          ${SUBJECTS.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="actions-row"><button class="btn" id="investBtn" style="background:var(--user-accent)">Investigar</button></div>
+      <div class="status" id="investStatus"></div>
+      <div id="investResult"></div>
+      <div class="history">
+        <h3>Investigaciones anteriores</h3>
+        <div id="investHistList"><div class="hist-empty">Cargando...</div></div>
+      </div>
+    </div>
+  `;
+  document.getElementById('investBtn').addEventListener('click', handleInvestigar);
+  refreshInvestHistory();
+}
+
+async function handleInvestigar(){
+  const btn = document.getElementById('investBtn');
+  const statusEl = document.getElementById('investStatus');
+  const query = document.getElementById('investInput').value.trim();
+  const subjId = document.getElementById('investSubj').value;
+  if(!query){ statusEl.textContent = 'Escribe primero qué quieres investigar.'; statusEl.className='status err'; return; }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Investigando...'; statusEl.className='status';
+
+  const subjName = subjId ? SUBJECTS.find(s=>s.id===subjId).name : null;
+  const instruction = `Eres un asistente de investigación para un estudiante de instituto en Guatemala${subjName? ' que está investigando para la materia de '+subjName : ''}. Investiga y explica con claridad el tema: "${query}". Organiza tu respuesta en una introducción breve y luego 3 a 5 puntos clave. Usa tu conocimiento general; si el tema depende de eventos muy recientes, acláralo. Responde en español, en párrafos claros, sin encabezados markdown.`;
+
+  try{
+    const respuesta = await callClaude([{type:'text', text: instruction}]);
+    document.getElementById('investResult').innerHTML = `
+      <div class="box"><h4>${escapeHtml(query)}</h4><p>${escapeHtml(respuesta).replace(/\n/g,'<br>')}</p></div>
+    `;
+    const entries = await storageGet('investigaciones') || [];
+    entries.unshift({ id:String(Date.now()), query, subjName, respuesta, date:new Date().toISOString() });
+    await storageSet('investigaciones', entries);
+    refreshInvestHistory();
+    statusEl.textContent = 'Listo.';
+  }catch(e){
+    statusEl.textContent = 'No se pudo completar la investigación. Intenta de nuevo.'; statusEl.className='status err';
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+async function refreshInvestHistory(){
+  const listEl = document.getElementById('investHistList');
+  if(!listEl) return;
+  const entries = await storageGet('investigaciones') || [];
+  if(entries.length===0){ listEl.innerHTML = '<div class="hist-empty">Todavía no has investigado ningún tema.</div>'; return; }
+  listEl.innerHTML = entries.map(e=>`
+    <div class="hist-item" data-id="${e.id}">
+      <div><div class="t">${escapeHtml(e.query)}</div><div class="d">${e.subjName?escapeHtml(e.subjName)+' · ':''}${new Date(e.date).toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+    </div>
+  `).join('');
+  listEl.querySelectorAll('.hist-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      const entry = entries.find(e=>e.id===item.dataset.id);
+      if(entry){
+        document.getElementById('investInput').value = entry.query;
+        document.getElementById('investResult').innerHTML = `<div class="box"><h4>${escapeHtml(entry.query)}</h4><p>${escapeHtml(entry.respuesta).replace(/\n/g,'<br>')}</p></div>`;
+      }
+    });
+  });
+}
+
+/* ---------- materias: tabs ---------- */
+function renderTabs(){
+  tabsEl.innerHTML = SUBJECTS.map(s=>`<button class="tab ${s.id===currentSubject?'active':''}" style="background:${s.hex}" data-id="${s.id}">${s.short}</button>`).join('');
+  tabsEl.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ currentSubject = btn.dataset.id; session=null; renderTabs(); renderCard(); });
+  });
+}
+
+async function loadHistory(subjectId){ return (await storageGet(`sessions:${subjectId}`)) || []; }
+async function saveHistory(subjectId, entries){ await storageSet(`sessions:${subjectId}`, entries); }
+async function persistSession(){
+  const entries = await loadHistory(currentSubject);
+  const idx = entries.findIndex(e=>e.id===session.id);
+  if(idx>=0) entries[idx]=session; else entries.unshift(session);
+  await saveHistory(currentSubject, entries);
+}
+function setStatus(msg,isErr){ const el=document.getElementById('statusEl'); if(!el) return; el.textContent=msg||''; el.className='status'+(isErr?' err':''); }
+function stepIndex(id){ return STEPS.findIndex(s=>s.id===id); }
+function renderStepper(activeId){
+  const activeIdx = stepIndex(activeId);
+  return `<div class="stepper">${STEPS.map((s,i)=>`<span class="step-pill ${i<activeIdx?'done':''} ${i===activeIdx?'now':''}">${s.label}</span>${i<STEPS.length-1?'<span class="step-arrow">→</span>':''}`).join('')}</div>`;
+}
+
+function renderCard(){
+  const s = subj();
+  cardEl.style.setProperty('--accent', s.hex);
+  if(!session){
+    cardEl.innerHTML = `
+      <div class="subj-head"><div class="badge" style="background:${s.hex}">${s.letter}</div><p class="subj-title" style="color:${s.hex}">${s.name}</p></div>
+      ${renderStepper('apuntes')}
+      <textarea id="apuntesInput" placeholder="Pega o escribe aquí tus apuntes de ${s.name}..."></textarea>
+      <div class="upload-row"><label>o sube una foto de tus apuntes:</label><input type="file" id="imgInput" accept="image/*" /></div>
+      <img id="imgPreview" class="img-preview" style="display:none" />
+      <div class="actions-row"><button class="btn" id="analizarBtn" style="background:${s.hex}">Analizar apuntes</button></div>
+      <div class="status" id="statusEl"></div>
+      <div class="history"><h3>Sesiones anteriores</h3><div id="histList"><div class="hist-empty">Cargando...</div></div></div>
+    `;
+    document.getElementById('imgInput').addEventListener('change', handleImgSelect);
+    document.getElementById('analizarBtn').addEventListener('click', handleAnalizar);
+    refreshHistory();
+    return;
+  }
+
+  let body = '';
+  if(['resumen','preguntas','examen','calificacion'].includes(session.step)){
+    body += `<div class="box"><h4>Resumen</h4><p>${escapeHtml(session.resumen)}</p>${session.temasClave&&session.temasClave.length?`<ul>${session.temasClave.map(t=>`<li>${escapeHtml(t)}</li>`).join('')}</ul>`:''}</div>`;
+    if(session.investigacion){
+      body += `<div class="box"><h4>Investigación extra</h4><p>${escapeHtml(session.investigacion).replace(/\n/g,'<br>')}</p></div>`;
+    }
+  }
+
+  if(session.step==='resumen'){
+    body += `<div class="actions-row">
+      <button class="btn" id="preguntasBtn" style="background:${s.hex}">Generar preguntas</button>
+      <button class="btn ghost" id="investigarMasBtn">Investigar más sobre este tema</button>
+      <button class="btn ghost" id="nuevaBtn">Nueva sesión</button>
+    </div>`;
+  }
+  if(session.step==='preguntas'){
+    body += `<div class="box"><h4>Preguntas listas</h4><p>Se generaron ${session.questions.length} preguntas sobre este tema.</p><ol>${session.questions.map(q=>`<li>${escapeHtml(q.pregunta)}</li>`).join('')}</ol></div>
+      <div class="actions-row"><button class="btn" id="examenBtn" style="background:${s.hex}">Iniciar examen</button><button class="btn ghost" id="nuevaBtn">Nueva sesión</button></div>`;
+  }
+  if(session.step==='examen'){
+    body += session.questions.map((q,i)=>`
+      <div class="q-block"><p class="qtext">${i+1}. ${escapeHtml(q.pregunta)}</p>
+        ${q.opciones.map((op,oi)=>`<label class="opt"><input type="radio" name="q${i}" value="${oi}" ${session.answers[i]===oi?'checked':''}><span>${escapeHtml(op)}</span></label>`).join('')}
+      </div>`).join('');
+    body += `<div class="actions-row"><button class="btn" id="enviarBtn" style="background:${s.hex}">Enviar examen</button></div>`;
+  }
+  if(session.step==='calificacion'){
+    const pct = Math.round((session.score.correct/session.score.total)*100);
+    body += `<div class="score-hero"><div class="score-num">${session.score.correct}/${session.score.total}</div><div class="score-lbl">${pct}% correcto</div></div>`;
+    body += session.questions.map((q,i)=>{
+      const userAns = session.answers[i]; const ok = userAns===q.respuesta_correcta;
+      return `<div class="q-block"><p class="qtext">${i+1}. ${escapeHtml(q.pregunta)}</p>
+        ${q.opciones.map((op,oi)=>{ let cls='opt'; if(oi===q.respuesta_correcta) cls+=' correct'; else if(oi===userAns&&!ok) cls+=' incorrect'; return `<div class="${cls}"><span>${escapeHtml(op)}</span></div>`; }).join('')}
+        <p style="font-size:12.5px;color:var(--ink-soft);margin:8px 0 0;">${escapeHtml(q.explicacion||'')}</p></div>`;
+    }).join('');
+    body += `<div class="actions-row"><button class="btn" id="nuevaBtn" style="background:${s.hex}">Nueva sesión</button></div>`;
+  }
+
+  cardEl.innerHTML = `
+    <div class="subj-head"><div class="badge" style="background:${s.hex}">${s.letter}</div><p class="subj-title" style="color:${s.hex}">${s.name}</p></div>
+    ${renderStepper(session.step)}
+    ${body}
+    <div class="status" id="statusEl"></div>
+  `;
+
+  const nuevaBtn = document.getElementById('nuevaBtn'); if(nuevaBtn) nuevaBtn.addEventListener('click', ()=>{ session=null; renderCard(); });
+  const preguntasBtn = document.getElementById('preguntasBtn'); if(preguntasBtn) preguntasBtn.addEventListener('click', handleGenerarPreguntas);
+  const investigarMasBtn = document.getElementById('investigarMasBtn'); if(investigarMasBtn) investigarMasBtn.addEventListener('click', handleInvestigarMas);
+  const examenBtn = document.getElementById('examenBtn'); if(examenBtn) examenBtn.addEventListener('click', ()=>{ session.step='examen'; session.answers=session.questions.map(()=>null); renderCard(); attachRadioListeners(); });
+  const enviarBtn = document.getElementById('enviarBtn'); if(enviarBtn) enviarBtn.addEventListener('click', handleEnviarExamen);
+  if(session.step==='examen') attachRadioListeners();
+}
+
+function attachRadioListeners(){
+  session.questions.forEach((q,i)=>{
+    document.querySelectorAll(`input[name="q${i}"]`).forEach(r=>{ r.addEventListener('change', ()=>{ session.answers[i]=parseInt(r.value); }); });
+  });
+}
+
+let pendingImage = null;
+function handleImgSelect(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    pendingImage = { mediaType:file.type, base64:dataUrl.split(',')[1] };
+    const preview = document.getElementById('imgPreview'); preview.src = dataUrl; preview.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function handleAnalizar(){
+  const s = subj();
+  const text = document.getElementById('apuntesInput').value.trim();
+  const btn = document.getElementById('analizarBtn');
+  if(!text && !pendingImage){ setStatus('Pega tus apuntes o sube una foto primero.', true); return; }
+  btn.disabled = true; setStatus('Analizando tus apuntes...');
+
+  const instruction = `Eres un tutor escolar para un estudiante de instituto en Guatemala, materia de ${s.name}. Analiza los apuntes proporcionados${pendingImage?' (vienen como imagen, transcribe primero lo esencial)':''} y responde ÚNICAMENTE con un JSON válido, sin texto adicional ni bloques de código, con esta forma exacta:
+{"resumen": "resumen claro de 4 a 6 líneas", "temas_clave": ["tema1","tema2","tema3"]}`;
+  const contentBlocks = [];
+  if(pendingImage) contentBlocks.push({ type:'image', source:{ type:'base64', media_type:pendingImage.mediaType, data:pendingImage.base64 } });
+  contentBlocks.push({ type:'text', text: instruction + (text?`\n\nApuntes del estudiante:\n${text}`:'') });
+
+  try{
+    const raw = await callClaude(contentBlocks);
+    const parsed = parseJsonLoose(raw);
+    session = { id:String(Date.now()), subject:currentSubject, title: text?text.slice(0,40):'Apuntes (foto)', apuntesText:text, resumen:parsed.resumen, temasClave:parsed.temas_clave||[], investigacion:null, questions:null, answers:null, score:null, step:'resumen', date:new Date().toISOString() };
+    pendingImage = null;
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudo analizar los apuntes. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleInvestigarMas(){
+  const s = subj();
+  const btn = document.getElementById('investigarMasBtn');
+  btn.disabled = true; setStatus('Investigando más sobre el tema...');
+  const instruction = `Eres un asistente de investigación escolar. El estudiante ya tiene este resumen de ${s.name}:\n"${session.resumen}"\nTemas clave: ${(session.temasClave||[]).join(', ')}.\nInvestiga y aporta información complementaria interesante y relevante para profundizar en el tema, en 3-4 párrafos cortos, en español, sin encabezados markdown. Usa tu conocimiento general.`;
+  try{
+    const respuesta = await callClaude([{type:'text', text:instruction}]);
+    session.investigacion = respuesta;
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudo completar la investigación. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleGenerarPreguntas(){
+  const s = subj();
+  const btn = document.getElementById('preguntasBtn');
+  btn.disabled = true; setStatus('Generando preguntas...');
+  const instruction = `Basado en este resumen de ${s.name}, genera un examen corto de 5 preguntas de opción múltiple en español. Responde ÚNICAMENTE con un JSON válido, sin texto adicional, con esta forma exacta:
+{"preguntas":[{"pregunta":"...","opciones":["a","b","c","d"],"respuesta_correcta":0,"explicacion":"..."}]}
+El campo respuesta_correcta es el índice (0 a 3) de la opción correcta dentro de "opciones".
+
+Resumen:
+${session.resumen}
+Temas clave: ${(session.temasClave||[]).join(', ')}`;
+  try{
+    const raw = await callClaude([{type:'text', text:instruction}]);
+    const parsed = parseJsonLoose(raw);
+    session.questions = parsed.preguntas; session.step = 'preguntas';
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudieron generar las preguntas. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleEnviarExamen(){
+  const unanswered = session.answers.some(a=>a===null||a===undefined);
+  if(unanswered){ setStatus('Responde todas las preguntas antes de enviar.', true); return; }
+  let correct = 0;
+  session.questions.forEach((q,i)=>{ if(session.answers[i]===q.respuesta_correcta) correct++; });
+  session.score = { correct, total: session.questions.length };
+  session.step = 'calificacion';
+  await persistSession();
+  renderCard();
+}
+
+async function refreshHistory(){
+  const listEl = document.getElementById('histList'); if(!listEl) return;
+  const entries = await loadHistory(currentSubject);
+  if(entries.length===0){ listEl.innerHTML = '<div class="hist-empty">Todavía no hay sesiones guardadas en esta materia.</div>'; return; }
+  listEl.innerHTML = entries.map(e=>`
+    <div class="hist-item" data-id="${e.id}">
+      <div><div class="t">${escapeHtml(e.title)}</div><div class="d">${new Date(e.date).toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+      <div class="sc">${e.score?e.score.correct+'/'+e.score.total:(e.step==='preguntas'?'sin examen':'en progreso')}</div>
+    </div>`).join('');
+  listEl.querySelectorAll('.hist-item').forEach(item=>{
+    item.addEventListener('click', ()=>{ const entry = entries.find(e=>e.id===item.dataset.id); if(entry){ session=entry; renderCard(); } });
+  });
+}
+
+(async function init(){
+  await loadPerfil();
+  renderNav();
+  renderTabs();
+  showView();
+})();
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu compañero de estudio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#FAF8F1; --grid-line:#E1E6EE; --ink:#1B2A41; --ink-soft:#5C6B82; --ink-faint:#93A0B3; --user-accent:#2C4A7C; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#DDE2EC;font-family:'Space Grotesk',sans-serif;color:var(--ink);}
+  body{min-height:100vh;display:flex;justify-content:center;padding:28px 14px;}
+  .app{width:100%;max-width:900px;}
+
+  .masthead{text-align:center;margin-bottom:14px;}
+  .masthead h1{font-family:'Caveat',cursive;font-weight:700;font-size:38px;margin:0;color:var(--ink);}
+  .masthead p{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-faint);margin:2px 0 0;letter-spacing:.04em;}
+
+  .mainnav{display:flex;justify-content:center;gap:8px;margin-bottom:16px;}
+  .navbtn{border:1.5px solid #C9CFDC;background:#fff;border-radius:999px;padding:7px 16px;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:13px;cursor:pointer;color:var(--ink-soft);}
+  .navbtn.active{background:var(--user-accent);border-color:var(--user-accent);color:#fff;}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;justify-content:center;}
+  .tab{border:1.5px solid transparent;border-radius:999px;padding:7px 14px;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:12.5px;cursor:pointer;color:#fff;opacity:.55;transition:opacity .15s,transform .15s;}
+  .tab:hover{opacity:.85;}
+  .tab.active{opacity:1;box-shadow:0 2px 6px rgba(0,0,0,0.18);transform:translateY(-1px);}
+
+  .card{background:var(--paper);border-radius:10px;box-shadow:0 8px 0 rgba(27,42,65,0.05),0 2px 12px rgba(27,42,65,0.14);padding:30px 34px;background-image:repeating-linear-gradient(var(--paper) 0 27px, var(--grid-line) 27px 28px);background-position:0 100px;}
+
+  .subj-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .badge{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Caveat',cursive;font-weight:700;font-size:20px;color:#fff;flex-shrink:0;}
+  .subj-title{font-family:'Caveat',cursive;font-weight:700;font-size:32px;margin:0;line-height:1;}
+
+  .stepper{display:flex;gap:4px;margin-bottom:24px;overflow-x:auto;padding-bottom:2px;}
+  .step-pill{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--ink-faint);padding:6px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+  .step-pill.done{color:var(--ink-soft);}
+  .step-pill.now{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .step-arrow{color:var(--ink-faint);font-size:11px;align-self:center;}
+
+  textarea,input[type=text]{width:100%;padding:14px;border:1.5px solid #D7DCE6;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:14.5px;line-height:1.6;background:#fff;color:var(--ink);}
+  textarea{min-height:140px;resize:vertical;}
+  textarea:focus,input[type=text]:focus,select:focus{outline:none;border-color:var(--accent,var(--user-accent));}
+  select{padding:11px 14px;border:1.5px solid #D7DCE6;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:13.5px;background:#fff;color:var(--ink);}
+  .upload-row{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .upload-row label{font-size:12.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;}
+  .img-preview{max-width:140px;max-height:90px;border-radius:6px;border:1px solid #D7DCE6;display:block;margin-top:8px;}
+
+  .btn{padding:11px 18px;border-radius:8px;border:none;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:14px;cursor:pointer;color:#fff;transition:opacity .15s;}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn.ghost{background:transparent;border:1.5px solid var(--ink-faint);color:var(--ink-soft);}
+  .actions-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+
+  .status{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-faint);margin:10px 0 0;min-height:16px;}
+  .status.err{color:#A32D2D;}
+
+  .box{background:#fff;border:1px solid #E7E2D2;border-left:4px solid var(--accent,var(--user-accent));border-radius:2px 8px 8px 2px;padding:16px 20px;font-size:14.5px;line-height:1.75;margin-top:10px;}
+  .box h4{margin:0 0 8px;font-family:'Caveat',cursive;font-weight:700;font-size:19px;color:var(--accent,var(--user-accent));}
+  .box ul{margin:8px 0 0;padding-left:18px;}
+  .box li{margin-bottom:5px;}
+
+  .q-block{background:#fff;border:1px solid #E7E2D2;border-radius:8px;padding:16px 18px;margin-top:14px;}
+  .q-block .qtext{font-weight:500;margin:0 0 10px;font-size:14.5px;}
+  .opt{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13.5px;margin-bottom:2px;}
+  .opt:hover{background:#F3F1E8;}
+  .opt input{margin-top:3px;}
+  .opt.correct{background:#E8F3E4;}
+  .opt.incorrect{background:#FBE7E5;}
+
+  .score-hero{text-align:center;padding:20px 0 8px;}
+  .score-num{font-family:'Caveat',cursive;font-weight:700;font-size:56px;line-height:1;color:var(--accent,var(--user-accent));}
+  .score-lbl{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-faint);margin-top:2px;}
+
+  .history{margin-top:30px;}
+  .history h3{font-family:'Caveat',cursive;font-size:20px;margin:0 0 10px;color:var(--ink-soft);font-weight:700;}
+  .hist-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border:1px solid #E7E2D2;background:#fff;border-radius:6px;margin-bottom:7px;font-size:13px;cursor:pointer;}
+  .hist-item .t{font-weight:500;}
+  .hist-item .d{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-faint);}
+  .hist-item .sc{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;flex-shrink:0;}
+  .hist-empty{font-size:13px;color:var(--ink-faint);font-style:italic;}
+  .privacy-note{text-align:center;font-size:11px;color:var(--ink-faint);margin-top:14px;font-family:'JetBrains Mono',monospace;}
+
+  .swatches{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px;}
+  .swatch{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .swatch.sel{border-color:var(--ink);}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);font-family:'JetBrains Mono',monospace;margin-bottom:6px;}
+
+  @media(max-width:640px){ .card{padding:22px 18px;} .masthead h1{font-size:30px;} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="masthead">
+    <h1>Tu compañero de estudio</h1>
+    <p id="mastSub">apuntes → análisis → resumen → preguntas → examen → calificación</p>
+  </div>
+  <div class="mainnav" id="mainnav"></div>
+  <div id="materiasView">
+    <div class="tabs" id="tabs"></div>
+    <div class="card" id="card"></div>
+  </div>
+  <div id="investigarView" style="display:none"></div>
+  <div id="perfilView" style="display:none"></div>
+  <p class="privacy-note">Tus apuntes, investigaciones y resultados se guardan solo en este dispositivo. Este perfil no es una cuenta segura, es solo personalización.</p>
+</div>
+
+<script>
+const SUBJECTS = [
+  {id:'lenguaje', name:'Lenguaje', short:'Lenguaje', hex:'#7C2C44', letter:'L'},
+  {id:'ciencias_naturales', name:'Ciencias Naturales', short:'C. Naturales', hex:'#2C6E49', letter:'CN'},
+  {id:'ciencias_sociales', name:'C. Sociales', short:'C. Sociales', hex:'#A5691F', letter:'CS'},
+  {id:'ingles', name:'Inglés', short:'Inglés', hex:'#2C4A7C', letter:'I'},
+  {id:'cultura_maya', name:'Cultura Maya', short:'C. Maya', hex:'#B5482D', letter:'CM'},
+  {id:'tecnologia', name:'Tecnología', short:'Tecnología', hex:'#1E7A78', letter:'T'},
+  {id:'matematicas', name:'Matemáticas', short:'Matemáticas', hex:'#3B3F8C', letter:'M'},
+  {id:'artistica', name:'Educ. Artística', short:'Artística', hex:'#A83368', letter:'A'},
+  {id:'emprendimiento', name:'Emprendimiento', short:'Emprend.', hex:'#B08A1E', letter:'E'},
+];
+const STEPS = [
+  {id:'apuntes', label:'Apuntes'}, {id:'analisis', label:'Análisis'}, {id:'resumen', label:'Resumen'},
+  {id:'preguntas', label:'Preguntas'}, {id:'examen', label:'Examen'}, {id:'calificacion', label:'Calificación'},
+];
+const PROFILE_COLORS = ['#2C4A7C','#7C2C44','#2C6E49','#B5482D','#1E7A78','#3B3F8C','#A83368','#B08A1E'];
+
+let currentView = 'materias';
+let currentSubject = SUBJECTS[0].id;
+let session = null;
+let perfil = { nombre:'', color: PROFILE_COLORS[0] };
+
+const tabsEl = document.getElementById('tabs');
+const cardEl = document.getElementById('card');
+const mainnavEl = document.getElementById('mainnav');
+const investigarViewEl = document.getElementById('investigarView');
+const perfilViewEl = document.getElementById('perfilView');
+
+function subj(){ return SUBJECTS.find(s=>s.id===currentSubject); }
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+async function storageGet(key){
+  try{ const r = await window.storage.get(key,false); return r? JSON.parse(r.value): null; }catch(e){ return null; }
+}
+async function storageSet(key, val){
+  try{ await window.storage.set(key, JSON.stringify(val), false); }catch(e){ console.error(e); }
+}
+
+async function callClaude(contentBlocks){
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages: [{ role:"user", content: contentBlocks }] })
+  });
+  if(!response.ok) throw new Error('Error de red');
+  const data = await response.json();
+  const block = data.content.find(b=>b.type==='text');
+  if(!block) throw new Error('Respuesta vacía');
+  return block.text.trim();
+}
+function parseJsonLoose(text){ return JSON.parse(text.replace(/```json/gi,'').replace(/```/g,'').trim()); }
+
+/* ---------- perfil ---------- */
+async function loadPerfil(){
+  const p = await storageGet('perfil');
+  if(p) perfil = p;
+  document.documentElement.style.setProperty('--user-accent', perfil.color);
+  const mastSub = document.getElementById('mastSub');
+  mastSub.textContent = perfil.nombre ? `Hola, ${perfil.nombre} — apuntes → análisis → resumen → preguntas → examen → calificación` : 'apuntes → análisis → resumen → preguntas → examen → calificación';
+}
+async function savePerfil(nombre, color){
+  perfil = { nombre, color };
+  await storageSet('perfil', perfil);
+  document.documentElement.style.setProperty('--user-accent', perfil.color);
+  loadPerfil();
+}
+
+/* ---------- nav ---------- */
+function renderNav(){
+  const items = [ ['materias','Materias'], ['investigar','Investigar'], ['perfil','Perfil'] ];
+  mainnavEl.innerHTML = items.map(([id,label])=>`<button class="navbtn ${currentView===id?'active':''}" data-id="${id}">${label}</button>`).join('');
+  mainnavEl.querySelectorAll('.navbtn').forEach(b=>{
+    b.addEventListener('click', ()=>{ currentView = b.dataset.id; showView(); });
+  });
+}
+function showView(){
+  renderNav();
+  document.getElementById('materiasView').style.display = currentView==='materias' ? '' : 'none';
+  investigarViewEl.style.display = currentView==='investigar' ? '' : 'none';
+  perfilViewEl.style.display = currentView==='perfil' ? '' : 'none';
+  if(currentView==='materias') renderCard();
+  if(currentView==='investigar') renderInvestigar();
+  if(currentView==='perfil') renderPerfil();
+}
+
+/* ---------- perfil view ---------- */
+function renderPerfil(){
+  perfilViewEl.innerHTML = `
+    <div class="card">
+      <div class="subj-head"><p class="subj-title" style="color:var(--user-accent)">Perfil y ajustes</p></div>
+      <div class="field">
+        <label>Tu nombre</label>
+        <input type="text" id="nombreInput" placeholder="¿Cómo te llamas?" value="${escapeHtml(perfil.nombre||'')}" />
+      </div>
+      <div class="field">
+        <label>Color favorito</label>
+        <div class="swatches" id="swatches">
+          ${PROFILE_COLORS.map(c=>`<div class="swatch ${c===perfil.color?'sel':''}" style="background:${c}" data-c="${c}"></div>`).join('')}
+        </div>
+      </div>
+      <div class="actions-row"><button class="btn" id="guardarPerfilBtn" style="background:${perfil.color}">Guardar</button></div>
+      <div class="status" id="perfilStatus"></div>
+    </div>
+  `;
+  let selColor = perfil.color;
+  document.querySelectorAll('#swatches .swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      selColor = sw.dataset.c;
+      document.querySelectorAll('#swatches .swatch').forEach(s2=>s2.classList.remove('sel'));
+      sw.classList.add('sel');
+    });
+  });
+  document.getElementById('guardarPerfilBtn').addEventListener('click', async ()=>{
+    const nombre = document.getElementById('nombreInput').value.trim();
+    await savePerfil(nombre, selColor);
+    document.getElementById('perfilStatus').textContent = 'Guardado.';
+    renderNav();
+  });
+}
+
+/* ---------- investigar view ---------- */
+async function renderInvestigar(){
+  investigarViewEl.innerHTML = `
+    <div class="card">
+      <div class="subj-head"><p class="subj-title" style="color:var(--user-accent)">Investigar</p></div>
+      <div class="field">
+        <label>¿Qué quieres investigar?</label>
+        <input type="text" id="investInput" placeholder="Ej: la revolución guatemalteca de 1944, los números primos, el ciclo del agua..." />
+      </div>
+      <div class="field">
+        <label>Materia relacionada (opcional)</label>
+        <select id="investSubj">
+          <option value="">General</option>
+          ${SUBJECTS.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="actions-row"><button class="btn" id="investBtn" style="background:var(--user-accent)">Investigar</button></div>
+      <div class="status" id="investStatus"></div>
+      <div id="investResult"></div>
+      <div class="history">
+        <h3>Investigaciones anteriores</h3>
+        <div id="investHistList"><div class="hist-empty">Cargando...</div></div>
+      </div>
+    </div>
+  `;
+  document.getElementById('investBtn').addEventListener('click', handleInvestigar);
+  refreshInvestHistory();
+}
+
+async function handleInvestigar(){
+  const btn = document.getElementById('investBtn');
+  const statusEl = document.getElementById('investStatus');
+  const query = document.getElementById('investInput').value.trim();
+  const subjId = document.getElementById('investSubj').value;
+  if(!query){ statusEl.textContent = 'Escribe primero qué quieres investigar.'; statusEl.className='status err'; return; }
+
+  btn.disabled = true;
+  statusEl.textContent = 'Investigando...'; statusEl.className='status';
+
+  const subjName = subjId ? SUBJECTS.find(s=>s.id===subjId).name : null;
+  const instruction = `Eres un asistente de investigación para un estudiante de instituto en Guatemala${subjName? ' que está investigando para la materia de '+subjName : ''}. Investiga y explica con claridad el tema: "${query}". Organiza tu respuesta en una introducción breve y luego 3 a 5 puntos clave. Usa tu conocimiento general; si el tema depende de eventos muy recientes, acláralo. Responde en español, en párrafos claros, sin encabezados markdown.`;
+
+  try{
+    const respuesta = await callClaude([{type:'text', text: instruction}]);
+    document.getElementById('investResult').innerHTML = `
+      <div class="box"><h4>${escapeHtml(query)}</h4><p>${escapeHtml(respuesta).replace(/\n/g,'<br>')}</p></div>
+    `;
+    const entries = await storageGet('investigaciones') || [];
+    entries.unshift({ id:String(Date.now()), query, subjName, respuesta, date:new Date().toISOString() });
+    await storageSet('investigaciones', entries);
+    refreshInvestHistory();
+    statusEl.textContent = 'Listo.';
+  }catch(e){
+    statusEl.textContent = 'No se pudo completar la investigación. Intenta de nuevo.'; statusEl.className='status err';
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+async function refreshInvestHistory(){
+  const listEl = document.getElementById('investHistList');
+  if(!listEl) return;
+  const entries = await storageGet('investigaciones') || [];
+  if(entries.length===0){ listEl.innerHTML = '<div class="hist-empty">Todavía no has investigado ningún tema.</div>'; return; }
+  listEl.innerHTML = entries.map(e=>`
+    <div class="hist-item" data-id="${e.id}">
+      <div><div class="t">${escapeHtml(e.query)}</div><div class="d">${e.subjName?escapeHtml(e.subjName)+' · ':''}${new Date(e.date).toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+    </div>
+  `).join('');
+  listEl.querySelectorAll('.hist-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      const entry = entries.find(e=>e.id===item.dataset.id);
+      if(entry){
+        document.getElementById('investInput').value = entry.query;
+        document.getElementById('investResult').innerHTML = `<div class="box"><h4>${escapeHtml(entry.query)}</h4><p>${escapeHtml(entry.respuesta).replace(/\n/g,'<br>')}</p></div>`;
+      }
+    });
+  });
+}
+
+/* ---------- materias: tabs ---------- */
+function renderTabs(){
+  tabsEl.innerHTML = SUBJECTS.map(s=>`<button class="tab ${s.id===currentSubject?'active':''}" style="background:${s.hex}" data-id="${s.id}">${s.short}</button>`).join('');
+  tabsEl.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ currentSubject = btn.dataset.id; session=null; renderTabs(); renderCard(); });
+  });
+}
+
+async function loadHistory(subjectId){ return (await storageGet(`sessions:${subjectId}`)) || []; }
+async function saveHistory(subjectId, entries){ await storageSet(`sessions:${subjectId}`, entries); }
+async function persistSession(){
+  const entries = await loadHistory(currentSubject);
+  const idx = entries.findIndex(e=>e.id===session.id);
+  if(idx>=0) entries[idx]=session; else entries.unshift(session);
+  await saveHistory(currentSubject, entries);
+}
+function setStatus(msg,isErr){ const el=document.getElementById('statusEl'); if(!el) return; el.textContent=msg||''; el.className='status'+(isErr?' err':''); }
+function stepIndex(id){ return STEPS.findIndex(s=>s.id===id); }
+function renderStepper(activeId){
+  const activeIdx = stepIndex(activeId);
+  return `<div class="stepper">${STEPS.map((s,i)=>`<span class="step-pill ${i<activeIdx?'done':''} ${i===activeIdx?'now':''}">${s.label}</span>${i<STEPS.length-1?'<span class="step-arrow">→</span>':''}`).join('')}</div>`;
+}
+
+function renderCard(){
+  const s = subj();
+  cardEl.style.setProperty('--accent', s.hex);
+  if(!session){
+    cardEl.innerHTML = `
+      <div class="subj-head"><div class="badge" style="background:${s.hex}">${s.letter}</div><p class="subj-title" style="color:${s.hex}">${s.name}</p></div>
+      ${renderStepper('apuntes')}
+      <textarea id="apuntesInput" placeholder="Pega o escribe aquí tus apuntes de ${s.name}..."></textarea>
+      <div class="upload-row"><label>o sube una foto de tus apuntes:</label><input type="file" id="imgInput" accept="image/*" /></div>
+      <img id="imgPreview" class="img-preview" style="display:none" />
+      <div class="actions-row"><button class="btn" id="analizarBtn" style="background:${s.hex}">Analizar apuntes</button></div>
+      <div class="status" id="statusEl"></div>
+      <div class="history"><h3>Sesiones anteriores</h3><div id="histList"><div class="hist-empty">Cargando...</div></div></div>
+    `;
+    document.getElementById('imgInput').addEventListener('change', handleImgSelect);
+    document.getElementById('analizarBtn').addEventListener('click', handleAnalizar);
+    refreshHistory();
+    return;
+  }
+
+  let body = '';
+  if(['resumen','preguntas','examen','calificacion'].includes(session.step)){
+    body += `<div class="box"><h4>Resumen</h4><p>${escapeHtml(session.resumen)}</p>${session.temasClave&&session.temasClave.length?`<ul>${session.temasClave.map(t=>`<li>${escapeHtml(t)}</li>`).join('')}</ul>`:''}</div>`;
+    if(session.investigacion){
+      body += `<div class="box"><h4>Investigación extra</h4><p>${escapeHtml(session.investigacion).replace(/\n/g,'<br>')}</p></div>`;
+    }
+  }
+
+  if(session.step==='resumen'){
+    body += `<div class="actions-row">
+      <button class="btn" id="preguntasBtn" style="background:${s.hex}">Generar preguntas</button>
+      <button class="btn ghost" id="investigarMasBtn">Investigar más sobre este tema</button>
+      <button class="btn ghost" id="nuevaBtn">Nueva sesión</button>
+    </div>`;
+  }
+  if(session.step==='preguntas'){
+    body += `<div class="box"><h4>Preguntas listas</h4><p>Se generaron ${session.questions.length} preguntas sobre este tema.</p><ol>${session.questions.map(q=>`<li>${escapeHtml(q.pregunta)}</li>`).join('')}</ol></div>
+      <div class="actions-row"><button class="btn" id="examenBtn" style="background:${s.hex}">Iniciar examen</button><button class="btn ghost" id="nuevaBtn">Nueva sesión</button></div>`;
+  }
+  if(session.step==='examen'){
+    body += session.questions.map((q,i)=>`
+      <div class="q-block"><p class="qtext">${i+1}. ${escapeHtml(q.pregunta)}</p>
+        ${q.opciones.map((op,oi)=>`<label class="opt"><input type="radio" name="q${i}" value="${oi}" ${session.answers[i]===oi?'checked':''}><span>${escapeHtml(op)}</span></label>`).join('')}
+      </div>`).join('');
+    body += `<div class="actions-row"><button class="btn" id="enviarBtn" style="background:${s.hex}">Enviar examen</button></div>`;
+  }
+  if(session.step==='calificacion'){
+    const pct = Math.round((session.score.correct/session.score.total)*100);
+    body += `<div class="score-hero"><div class="score-num">${session.score.correct}/${session.score.total}</div><div class="score-lbl">${pct}% correcto</div></div>`;
+    body += session.questions.map((q,i)=>{
+      const userAns = session.answers[i]; const ok = userAns===q.respuesta_correcta;
+      return `<div class="q-block"><p class="qtext">${i+1}. ${escapeHtml(q.pregunta)}</p>
+        ${q.opciones.map((op,oi)=>{ let cls='opt'; if(oi===q.respuesta_correcta) cls+=' correct'; else if(oi===userAns&&!ok) cls+=' incorrect'; return `<div class="${cls}"><span>${escapeHtml(op)}</span></div>`; }).join('')}
+        <p style="font-size:12.5px;color:var(--ink-soft);margin:8px 0 0;">${escapeHtml(q.explicacion||'')}</p></div>`;
+    }).join('');
+    body += `<div class="actions-row"><button class="btn" id="nuevaBtn" style="background:${s.hex}">Nueva sesión</button></div>`;
+  }
+
+  cardEl.innerHTML = `
+    <div class="subj-head"><div class="badge" style="background:${s.hex}">${s.letter}</div><p class="subj-title" style="color:${s.hex}">${s.name}</p></div>
+    ${renderStepper(session.step)}
+    ${body}
+    <div class="status" id="statusEl"></div>
+  `;
+
+  const nuevaBtn = document.getElementById('nuevaBtn'); if(nuevaBtn) nuevaBtn.addEventListener('click', ()=>{ session=null; renderCard(); });
+  const preguntasBtn = document.getElementById('preguntasBtn'); if(preguntasBtn) preguntasBtn.addEventListener('click', handleGenerarPreguntas);
+  const investigarMasBtn = document.getElementById('investigarMasBtn'); if(investigarMasBtn) investigarMasBtn.addEventListener('click', handleInvestigarMas);
+  const examenBtn = document.getElementById('examenBtn'); if(examenBtn) examenBtn.addEventListener('click', ()=>{ session.step='examen'; session.answers=session.questions.map(()=>null); renderCard(); attachRadioListeners(); });
+  const enviarBtn = document.getElementById('enviarBtn'); if(enviarBtn) enviarBtn.addEventListener('click', handleEnviarExamen);
+  if(session.step==='examen') attachRadioListeners();
+}
+
+function attachRadioListeners(){
+  session.questions.forEach((q,i)=>{
+    document.querySelectorAll(`input[name="q${i}"]`).forEach(r=>{ r.addEventListener('change', ()=>{ session.answers[i]=parseInt(r.value); }); });
+  });
+}
+
+let pendingImage = null;
+function handleImgSelect(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    pendingImage = { mediaType:file.type, base64:dataUrl.split(',')[1] };
+    const preview = document.getElementById('imgPreview'); preview.src = dataUrl; preview.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function handleAnalizar(){
+  const s = subj();
+  const text = document.getElementById('apuntesInput').value.trim();
+  const btn = document.getElementById('analizarBtn');
+  if(!text && !pendingImage){ setStatus('Pega tus apuntes o sube una foto primero.', true); return; }
+  btn.disabled = true; setStatus('Analizando tus apuntes...');
+
+  const instruction = `Eres un tutor escolar para un estudiante de instituto en Guatemala, materia de ${s.name}. Analiza los apuntes proporcionados${pendingImage?' (vienen como imagen, transcribe primero lo esencial)':''} y responde ÚNICAMENTE con un JSON válido, sin texto adicional ni bloques de código, con esta forma exacta:
+{"resumen": "resumen claro de 4 a 6 líneas", "temas_clave": ["tema1","tema2","tema3"]}`;
+  const contentBlocks = [];
+  if(pendingImage) contentBlocks.push({ type:'image', source:{ type:'base64', media_type:pendingImage.mediaType, data:pendingImage.base64 } });
+  contentBlocks.push({ type:'text', text: instruction + (text?`\n\nApuntes del estudiante:\n${text}`:'') });
+
+  try{
+    const raw = await callClaude(contentBlocks);
+    const parsed = parseJsonLoose(raw);
+    session = { id:String(Date.now()), subject:currentSubject, title: text?text.slice(0,40):'Apuntes (foto)', apuntesText:text, resumen:parsed.resumen, temasClave:parsed.temas_clave||[], investigacion:null, questions:null, answers:null, score:null, step:'resumen', date:new Date().toISOString() };
+    pendingImage = null;
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudo analizar los apuntes. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleInvestigarMas(){
+  const s = subj();
+  const btn = document.getElementById('investigarMasBtn');
+  btn.disabled = true; setStatus('Investigando más sobre el tema...');
+  const instruction = `Eres un asistente de investigación escolar. El estudiante ya tiene este resumen de ${s.name}:\n"${session.resumen}"\nTemas clave: ${(session.temasClave||[]).join(', ')}.\nInvestiga y aporta información complementaria interesante y relevante para profundizar en el tema, en 3-4 párrafos cortos, en español, sin encabezados markdown. Usa tu conocimiento general.`;
+  try{
+    const respuesta = await callClaude([{type:'text', text:instruction}]);
+    session.investigacion = respuesta;
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudo completar la investigación. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleGenerarPreguntas(){
+  const s = subj();
+  const btn = document.getElementById('preguntasBtn');
+  btn.disabled = true; setStatus('Generando preguntas...');
+  const instruction = `Basado en este resumen de ${s.name}, genera un examen corto de 5 preguntas de opción múltiple en español. Responde ÚNICAMENTE con un JSON válido, sin texto adicional, con esta forma exacta:
+{"preguntas":[{"pregunta":"...","opciones":["a","b","c","d"],"respuesta_correcta":0,"explicacion":"..."}]}
+El campo respuesta_correcta es el índice (0 a 3) de la opción correcta dentro de "opciones".
+
+Resumen:
+${session.resumen}
+Temas clave: ${(session.temasClave||[]).join(', ')}`;
+  try{
+    const raw = await callClaude([{type:'text', text:instruction}]);
+    const parsed = parseJsonLoose(raw);
+    session.questions = parsed.preguntas; session.step = 'preguntas';
+    await persistSession();
+    renderCard();
+  }catch(e){
+    setStatus('No se pudieron generar las preguntas. Intenta de nuevo.', true); btn.disabled=false;
+  }
+}
+
+async function handleEnviarExamen(){
+  const unanswered = session.answers.some(a=>a===null||a===undefined);
+  if(unanswered){ setStatus('Responde todas las preguntas antes de enviar.', true); return; }
+  let correct = 0;
+  session.questions.forEach((q,i)=>{ if(session.answers[i]===q.respuesta_correcta) correct++; });
+  session.score = { correct, total: session.questions.length };
+  session.step = 'calificacion';
+  await persistSession();
+  renderCard();
+}
+
+async function refreshHistory(){
+  const listEl = document.getElementById('histList'); if(!listEl) return;
+  const entries = await loadHistory(currentSubject);
+  if(entries.length===0){ listEl.innerHTML = '<div class="hist-empty">Todavía no hay sesiones guardadas en esta materia.</div>'; return; }
+  listEl.innerHTML = entries.map(e=>`
+    <div class="hist-item" data-id="${e.id}">
+      <div><div class="t">${escapeHtml(e.title)}</div><div class="d">${new Date(e.date).toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+      <div class="sc">${e.score?e.score.correct+'/'+e.score.total:(e.step==='preguntas'?'sin examen':'en progreso')}</div>
+    </div>`).join('');
+  listEl.querySelectorAll('.hist-item').forEach(item=>{
+    item.addEventListener('click', ()=>{ const entry = entries.find(e=>e.id===item.dataset.id); if(entry){ session=entry; renderCard(); } });
+  });
+}
+
+(async function init(){
+  await loadPerfil();
+  renderNav();
+  renderTabs();
+  showView();
+})();
+</script>
+</body>
+</html>
